@@ -1,51 +1,46 @@
-# Flow TV 0.2.0 — validation
+# Flow TV 0.3.0 — executed validation
 
-## Build and installation
+## Final build
 
-The final source passed `assembleDebug`, `assembleDebugAndroidTest` and `lintDebug` with JDK 21, Gradle 8.10.2 and Android SDK/build-tools 35. Lint reported 0 errors and 24 warnings, including prototype English strings and RTL/resource presentation warnings.
+`assembleDebug`, `assembleDebugAndroidTest` and `lintDebug` passed with JDK 21, Gradle 8.10.2 and Android SDK/build-tools 35. Lint: **0 errors, 27 warnings** (including English prototype strings, RTL/resource presentation and foreground-service disclosure guidance). APK Signature Scheme v2 verification passed.
 
-The debug APK is `tv.flow.mobile`, versionCode 2 / versionName 0.2.0, minSdk 26 (Android 8), targetSdk 35. APK Signature Scheme v2 verification passed. Its signing certificate matches the previously uploaded v0.1.0 APK, allowing an update that retains local preferences. Only ACCESS_NETWORK_STATE is requested.
+Package `tv.flow.mobile`, versionCode 3 / versionName 0.3.0, minSdk 26 (Android 8), targetSdk 35. The certificate SHA-256 remains `c5129f9e2307d1061497bbd58cd4d7ae97829f1b23980dce6aa4eb50409114b0`, matching the earlier published APKs. Main/test APKs installed successfully over the existing emulator installation.
 
-The main and instrumentation APKs installed successfully on an Android 11 / API 30 x86_64 phone emulator using software acceleration. The raw final build and instrumentation output is in [releases/validation](releases/validation).
+The emulator was Android 11 / API 30 x86_64 with software acceleration, landscape and portrait. [Raw final build and smoke output](releases/validation) accompanies the APK. Executing Android 11 does not imply that every supported OS/device has been tested.
 
-## Executed checks
+## 37 passed instrumentation checks
 
-All 13 native instrumentation smoke checks passed:
+The final raw result reports `passed=37`, `37 checks passed`, and `INSTRUMENTATION_CODE: -1`, without FAIL/crash output. The following groups describe the actual scope:
 
-1. Home sample labels and navigation sections.
-2. Local catalogue content-type, genre, language and provider filters update displayed results.
-3. Kids age selection changes the local sample recommendations.
-4. Watchlist changes persist across activity destruction.
-5. Watchlist is restored at next launch.
-6. Dashboard reads actual device information and handles unavailable phone TV controls.
-7. Drawer focus stays within the panel and Back closes it.
-8. MediaPlayer plays bundled audio; search, empty results and queue actions work while current playback continues.
-9. Sample seeking and pause/resume change actual playback state.
-10. Favourite ordering persists, and cancelling a move restores the saved order.
-11. Remote target focus is established.
-12. Injected touch on the on-screen OK button activates the focused item; Back closes it.
-13. Android system Home backgrounds the activity, pauses audio and stops dashboard polling.
+- **13 retained Design Preview checks:** sample labels and navigation, local sample catalogue filters, Kids grouping, sample watchlist persistence/recreation, actual device Dashboard and unavailable phone TV controls, drawer focus/Back, actual bundled playback/search/seek/queue/pause, favourite reordering/persistence/cancel, injected touch on the on-screen remote, and stopping prototype audio/polling in the background. These are explicitly sample-mode tests, not live streaming tests.
+- **10 default-device checks:** no fabricated catalogue/sample playback by default; real package/icon/launch-component discovery; correctly encoded YouTube search URI and remote keyboard; strict video URL/host validation; saved real link persistence; truthful controls without a YouTube session; Minimal Glass hardware readings; permission-scope explanation; launching the actual installed Android Settings app; and restoring its local recent-app entry.
+- **2 granted-access checks:** Android notification access was granted temporarily in the disposable emulator using the test shell. Active media sessions were queried successfully, and Flow's own playing local session was correctly rejected as a YouTube source. Revoking access cleared the listener/controller. Production code never grants this permission automatically.
+- **12 local-audio checks:** user-started foreground media service; real decoded duration/metadata and supported controls; actual seeking and queue use; consuming queue/next plus uninterrupted song/artist/album search; media-session pause/resume; black view without widgets; an actual screenshot pixel check plus injected touch and Back dismissal; importing a real content URI; playing the imported file; verifying its actual decoded duration; continued playback with the emulator display noninteractive; and waking the display with playback still controllable.
 
-The final raw result reports `passed=13`, `13 checks passed`, and `INSTRUMENTATION_CODE: -1`, without FAIL/crash output. An adb exit status alone is not the acceptance check.
+The content-URI fixture was an audio file created through Android MediaStore by this app, copied from an original bundled WAV and deleted by the test afterward. This verifies selected-URI handling and decoding, not every external document provider. The picker itself uses standard ACTION_OPEN_DOCUMENT with audio MIME filtering and no broad storage permission.
 
-## Visual review
+For display-off testing, the test sent Android sleep, verified `PowerManager.isInteractive() == false`, verified that the activity was inactive, and verified actual MediaPlayer progress advanced by more than 700 ms while playback continued. It then sent wake/unlock and checked continued playback. **This verifies local audio on this emulator, not YouTube or physical TV picture-off.** The emulator uses a virtual audio sink; decoding/state/progress were verified, not acoustic speaker output.
 
-[18 screenshots](releases/screenshots) were captured from the final running APK: Home, New, installed Apps, Kids, Quick settings, Wi-Fi, Sound/display, Privacy, Dashboard, Ports, Audio, Song search, Movies, Shows, My list, title details, portrait Home and portrait Audio. Landscape and portrait layouts were inspected against the supplied references. These are actual app captures, not the concept images.
+## Actual captures
 
-Images are separate bundled artwork. Navigation, text, cards, focus indicators, drawers, keyboard, seek bars and actions are native Android views. Hardware cards display the emulator's actual readings, and app tiles use its installed packages. Captures include a small saved watchlist and favourite selection created by the test fixture; they do not represent imported viewing history. On a phone, readings and app tiles will reflect that phone.
+[13 v0.3 screenshots](releases/screenshots-v0.3) were captured from this final tested APK: default Home, installed Apps, New/provider hand-offs, Dashboard, YouTube connection state, official-app Search panel, media-access explanation, saved links, portrait Home and YouTube audio, local dot-matrix audio, local Search, and the black screen. Landscape/portrait layouts and missing-artwork states were inspected. Native controls, labels and panels remain independently interactive.
+
+The emulator has no official YouTube/streaming apps, so these captures truthfully show no connected YouTube session or installed providers. Recently opened Settings and the saved YouTube link are test inputs, not fetched recommendations or viewing history. Blank/no-artwork states are labelled; no sample cover is substituted as source artwork. The black capture has no widgets and does not establish panel/backlight shutdown. Historical v0.2 design captures remain separately in `releases/screenshots`.
+
+## Not verified / unsupported
+
+- No actual YouTube/YouTube Music playback, membership eligibility, active YouTube metadata/actions, source queue, source Show video, mobile background playback or screen-off playback was exercised. The official source must expose these capabilities; hand-off and session APIs alone do not prove them.
+- No realme RMV2004 or physical phone was attached. Vendor Picture Off, standby differences, remote wake behavior, physical D-pad long-press, touch drag, TV USB/HDMI, vendor settings, acoustic output and TalkBack remain device checks.
+- No hidden YouTube player, stream extraction, forced background playback, privileged display-off command or Premium bypass exists. YouTube Hide Video and Screen Off are not labelled working. Black screen is offered for local audio only and is labelled display-stays-on.
+- No official API key/catalogue is configured, so in-app live movie or YouTube search results and aggregation of provider suggestions are unavailable. Real search opens the official app/browser, and provider cards open installed apps.
+- Current official YouTube/Android/realme documentation was retrieved and reviewed after initial HTTP failures. YouTube limits background playback to mobile apps; the Android TV path is explicitly gated and offers Open YouTube. No RMV2004-specific Picture Off support was established. [YOUTUBE_FEASIBILITY.md](YOUTUBE_FEASIBILITY.md) and the retrieval manifest separate official findings from executed emulator tests.
 
 ## Reproduce
 
-Run `./scripts/build-cloud.sh` in the prepared environment, or follow the SDK build instructions in README.md. Install the main and instrumentation APKs in a disposable emulator, then run:
+Build with `./scripts/build-cloud.sh` in the prepared environment or README's SDK instructions. Install both APKs into a disposable API 30 emulator and run:
 
 ```sh
-adb shell am instrument -r -w -e capture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
+adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
 ```
 
-The test runner clears that installation's local preferences. Optional captures are stored in the app's internal `files/visuals` folder; collect them using `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
-
-## Limits
-
-No physical phone or realme RMV2004 TV was attached. Physical remote long-press, touch drag, vendor settings, TV inputs/USB behavior and TalkBack need device testing. Media decoding, progress and state were verified with the emulator's virtual audio sink; audible speaker output was not acoustically measured. Android 11 was executed; Android 8+ is the installation requirement, not a claim that every supported OS/device has been tested.
-
-The catalogue, artwork and provider labels are illustrative. Live catalogues, YouTube, trailers, cross-app history, privileged HDMI switching, device-wide parental enforcement, voice search, video hiding and screen-off/background audio remain unavailable and are labelled accordingly. Unsupported metrics are omitted; sample CPU, RAM, storage and network values from the reference images are never used as device measurements.
+The runner clears this test installation's preferences, temporarily grants/revokes media-session notification access, launches installed Settings, creates/deletes its own MediaStore file, and sleeps/wakes the emulator. **Do not run this test suite on a personal installation.** Require the full pass count and successful instrumentation completion, not adb exit alone. Captures are in the app's internal `files/visuals`; collect with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.

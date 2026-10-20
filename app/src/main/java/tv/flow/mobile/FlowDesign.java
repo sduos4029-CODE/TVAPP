@@ -44,7 +44,7 @@ final class FlowDesign {
 
   void loadArt() {
     try {
-      if (kidsArt == null) {
+      if (a.demo() && kidsArt == null) {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inPreferredConfig = Bitmap.Config.RGB_565;
         kidsArt = BitmapFactory.decodeStream(a.getAssets().open("kids-artwork.png"), null, o);
@@ -52,12 +52,12 @@ final class FlowDesign {
     } catch (Exception ignored) {
     }
     try {
-      if (atlas == null) {
+      if (a.demo() && atlas == null) {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inPreferredConfig = Bitmap.Config.RGB_565;
         atlas = BitmapFactory.decodeStream(a.getAssets().open("artwork-atlas.png"), null, o);
       }
-      if (heroes == null) {
+      if (a.demo() && heroes == null) {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inPreferredConfig = Bitmap.Config.RGB_565;
         heroes = BitmapFactory.decodeStream(a.getAssets().open("hero-artwork.png"), null, o);
@@ -110,7 +110,7 @@ final class FlowDesign {
     StateListDrawable s = new StateListDrawable();
     s.addState(new int[] {android.R.attr.state_focused}, border(Color.TRANSPARENT, MINT, 9, 3));
     s.addState(new int[] {android.R.attr.state_pressed}, border(0x337df3d3, MINT, 9, 2));
-    s.addState(new int[] {}, border(Color.TRANSPARENT, LINE, 9, 1));
+    s.addState(new int[] {}, new ColorDrawable(Color.TRANSPARENT));
     return s;
   }
 
@@ -133,6 +133,14 @@ final class FlowDesign {
     b.setMinimumHeight(u(32));
     b.setPadding(u(13), u(4), u(13), u(4));
     b.setBackground(a.buttonBackground());
+    if(a.page.equals("Audio") && !a.demo()) {
+      StateListDrawable background=new StateListDrawable();
+      background.addState(new int[]{android.R.attr.state_focused},border(0xff202324,Color.WHITE,9,2));
+      background.addState(new int[]{android.R.attr.state_pressed},border(0xff202324,RED,9,2));
+      background.addState(new int[]{},solid(0xff191c1d,9));
+      b.setBackground(background);b.setForeground(new ColorDrawable(Color.TRANSPARENT));
+      b.setTextColor(0xffeeeae0);b.setTypeface(dots);
+    }
     return b;
   }
 
@@ -239,6 +247,7 @@ final class FlowDesign {
     a.root.setAlpha(a.prefs.getFloat("appearance", 1f));
     if (a.page.equals("Audio")) audioHeader();
     else header();
+    if (a.demo()) a.root.addView(label("DESIGN PREVIEW • SAMPLE CONTENT • exit in Settings", 10, LAV));
     a.stage = new FrameLayout(a);
     a.root.addView(a.stage, new LinearLayout.LayoutParams(-1, 0, 1));
     ScrollView scroll = new ScrollView(a);
@@ -409,6 +418,7 @@ final class FlowDesign {
   }
 
   void home() {
+    if (!a.demo()) { a.live.home(); return; }
     hero(a.content, a.catalogue[0], false, 168);
     section(a.content, "Favourite Apps", "Installed on this device");
     favoriteRow();
@@ -597,7 +607,7 @@ final class FlowDesign {
             a.saveFavorites();
             a.build();
             a.toast("Favourite order saved");
-          } else if (entry != null) a.safeStart(entry.intent);
+          } else if (entry != null) a.launchApp(entry);
           else a.toast("App unavailable. Remove it from favourites in All Apps.");
         });
     tile.setOnLongClickListener(
@@ -646,7 +656,7 @@ final class FlowDesign {
               a.saveFavorites();
               a.build();
             }));
-    if (app != null) p.addView(button("Open app", () -> a.safeStart(app.intent)));
+    if (app != null) p.addView(button("Open app", () -> a.launchApp(app)));
     p.addView(
         button(
             "Android app information",
@@ -836,6 +846,7 @@ final class FlowDesign {
   }
 
   void catalogue() {
+    if (!a.demo()) { a.live.catalogue(); return; }
     if (a.page.equals("My list")) {
       LinearLayout filters = row();
       int movies = 0, shows = 0;
@@ -972,6 +983,7 @@ final class FlowDesign {
   }
 
   void kids() {
+    if (!a.demo()) { a.live.catalogue(); return; }
     MainActivity.Title lead = null;
     for (MainActivity.Title t : a.catalogue)
       if (t.kind.equals("Kids")) {
@@ -1115,11 +1127,7 @@ final class FlowDesign {
   }
 
   void dashboard() {
-    section(a.content, "Device dashboard", a.tv() ? "ACTUAL TV DATA" : "ACTUAL PHONE DATA");
-    note(
-        a.content,
-        "Readings from this device • unsupported measurements are hidden • updates only while"
-            + " Dashboard is visible");
+    section(a.content, "Dashboard", a.tv() ? "LIVE TV DATA  ·  MINIMAL GLASS" : "LIVE PHONE DATA  ·  MINIMAL GLASS");
     gap(a.content, 7);
     ArrayList<String> keys = new ArrayList<>(Arrays.asList("RAM", "Storage", "CPU", "Wi-Fi"));
     if (a.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
@@ -1152,34 +1160,31 @@ final class FlowDesign {
                 + Build.MODEL
                 + "   |   Android "
                 + Build.VERSION.RELEASE
-                + "   |   Flow TV 0.2.0",
+                + "   |   Flow TV 0.3.0",
             () -> a.detail("System"));
     footer.addView(sys, new LinearLayout.LayoutParams(0, u(32), 1));
     TextView live = bold(a.tv() ? "Device readings" : "Phone readings", 11, BG);
     live.setBackground(solid(LAV, 6));
     footer.addView(live);
     a.content.addView(footer);
-    note(
-        a.content,
-        "CPU/GPU usage and hardware clock rates are omitted when Android exposes no reliable public"
-            + " reading. Network values are actual cumulative counters, not invented speeds.");
+    note(a.content, "Tap a card for details • actual device data • unsupported metrics hidden");
     refreshMetrics();
   }
 
   LinearLayout metricCard(String key) {
     LinearLayout c = col();
     c.setPadding(u(16), u(10), u(14), u(10));
-    c.setBackground(solid(CARD, 12));
+    c.setBackground(border(0xff102131, 0xff293e50, 18, 1));
     LinearLayout title = row();
     ImageView icon = new ImageView(a);
-    icon.setImageDrawable(new LineIcon(key.toLowerCase(Locale.ROOT), TEXT));
-    add(title, icon, 27, 27);
-    TextView label = label(key.equals("Network") ? "Network Traffic" : key, 15, TEXT);
+    icon.setImageDrawable(new LineIcon(key.toLowerCase(Locale.ROOT), key.equals("Storage") ? LAV : MINT));
+    add(title, icon, 24, 24);
+    TextView label = label(key.equals("Network") ? "Network" : key, 13, MUTED);
     label.setPadding(u(10), 0, 0, 0);
     title.addView(label);
     c.addView(title);
     TextView value = label("", key.equals("CPU") || key.equals("Ports & Inputs") ? 13 : 15, TEXT);
-    value.setPadding(u(37), u(3), 0, 0);
+    value.setPadding(u(4), u(6), 0, 0);
     c.addView(value);
     a.metricKeys.add(key);
     a.metricViews.add(value);
@@ -1238,7 +1243,7 @@ final class FlowDesign {
                   + Build.SUPPORTED_ABIS[0]
                   + " • "
                   + Runtime.getRuntime().availableProcessors()
-                  + " available cores\nLive utilisation unavailable");
+                  + " available cores");
         } else if (key.equals("Network")) {
           view.setText(
               "↓ "
@@ -1268,6 +1273,12 @@ final class FlowDesign {
 
   void settings() {
     LinearLayout p = panel("Quick settings");
+    p.addView(button(a.demo() ? "Exit sample design preview" : "Design preview · samples", () -> {
+      a.prefs.edit().putBoolean("designDemo", !a.demo()).apply();
+      if (a.player != null) a.player.pause();
+      if(a.localAudio!=null) a.localAudio.pause();
+      a.navigate("Home");
+    }));
     for (String[] item :
         new String[][] {
           {"wifi", "Network"},
@@ -1344,9 +1355,10 @@ final class FlowDesign {
         new String[][] {
           {"Ads & trackers", "None in Flow TV"},
           {"Microphone", "Not requested • voice unavailable"},
-          {"Recommendations", "On-device sample catalogue"},
+          {"Recommendations", a.demo() ? "Sample design preview" : "Inside installed providers"},
           {"Online catalogue", "Not connected"},
-          {"Background work", "Polling and audio pause when inactive"}
+          {"Media access", a.youtube.allowed() ? "Enabled in Android settings" : "Optional · not enabled"},
+          {"Background work", "Flow polling stops when inactive"}
         }) {
       Button b = button(row[0] + "\n" + row[1], () -> a.toast(row[0] + ": " + row[1]));
       b.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
@@ -1359,10 +1371,12 @@ final class FlowDesign {
             () ->
                 a.confirm(
                     "Clear local history?",
-                    "No viewing history is stored. Clears the current audio queue; favourites and"
+                    "Clears apps opened through Flow and the local audio queue; favourites and"
                         + " watchlist stay.",
                     () -> {
                       a.queue.clear();
+                      if(a.localAudio!=null)a.localAudio.queue.clear();
+                      a.prefs.edit().remove("recentApps").apply();
                       a.toast("Local queue cleared");
                     })));
     p.addView(
@@ -1371,9 +1385,13 @@ final class FlowDesign {
             () ->
                 a.confirm(
                     "Delete Flow data?",
-                    "Deletes local favourites, ordering, watchlist and preferences. Stops playback."
+                    "Deletes local favourites, lists, audio imports and preferences. Stops local playback. Android notification access is revoked separately in system settings."
                         + " This cannot be undone.",
                     () -> {
+                      if(a.localAudio!=null)a.localAudio.stopPlayback();
+                      for(android.content.UriPermission permission:a.getContentResolver().getPersistedUriPermissions()) {
+                        try{a.getContentResolver().releasePersistableUriPermission(permission.getUri(),Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(SecurityException ignored){}
+                      }
                       if (a.player != null) {
                         a.player.release();
                         a.player = null;
@@ -1398,10 +1416,11 @@ final class FlowDesign {
     pill(tabs, "▣ Display", display, () -> soundDisplay(true));
     p.addView(tabs);
     if (!display) {
-      p.addView(bold("Sample player volume", 14, TEXT));
+      p.addView(bold(a.demo() ? "Sample player volume" : "Device media volume", 14, TEXT));
+      AudioManager audioManager = (AudioManager) a.getSystemService(Context.AUDIO_SERVICE);
       SeekBar v = new SeekBar(a);
-      v.setMax(100);
-      v.setProgress(a.prefs.getInt("volume", 70));
+      v.setMax(a.demo() ? 100 : audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+      v.setProgress(a.demo() ? a.prefs.getInt("volume", 70) : audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
       v.setProgressTintList(ColorStateList.valueOf(MINT));
       v.setOnSeekBarChangeListener(
           new SeekBar.OnSeekBarChangeListener() {
@@ -1411,6 +1430,11 @@ final class FlowDesign {
 
             public void onProgressChanged(SeekBar s, int n, boolean user) {
               if (user) {
+                if (!a.demo()) {
+                  try { audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, n, 0); }
+                  catch (SecurityException e) { a.toast("Use device sound settings"); }
+                  return;
+                }
                 a.prefs.edit().putInt("volume", n).apply();
                 if (a.player != null) a.player.setVolume(n / 100f, n / 100f);
               }
@@ -1419,8 +1443,7 @@ final class FlowDesign {
       p.addView(v);
       note(
           p,
-          "Changes Flow sample playback only. Device speakers and output routing are controlled in"
-              + " Android settings.");
+          a.demo() ? "Changes sample playback only." : "Changes Android media volume where supported. Output routing is controlled in Android settings.");
       p.addView(
           button(
               "↗ Open device sound settings",
@@ -1469,7 +1492,7 @@ final class FlowDesign {
       actions.addView(
           label("♬ AUDIO PLAYER", 14, 0xffeee8d0), new LinearLayout.LayoutParams(0, -2, 1));
     }
-    actions.addView(button("⌕ Search songs", () -> a.searchSongs()));
+    actions.addView(button("⌕ Search songs", () -> { if (a.demo()) a.searchSongs(); else a.live.search(true); }));
     actions.addView(button("⚙ Settings", () -> a.settings()));
     Button mode = button("▦", () -> previewPanel());
     mode.setContentDescription("TV Preview and remote controls");
@@ -1487,6 +1510,7 @@ final class FlowDesign {
   }
 
   void audio() {
+    if (!a.demo()) { a.live.audio(); return; }
     a.audioVisible = true;
     int cream = 0xffefe8cd;
     LinearLayout deck = col();

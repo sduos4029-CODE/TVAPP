@@ -197,6 +197,275 @@ public class FlowSmoke extends Instrumentation {
     check(app.landscape(), "Landscape transition failed");
   }
 
+  void runLive(Intent intent) throws Exception {
+    runOnMainSync(() -> {
+      app.prefs.edit().remove("designDemo").remove("recentApps").remove("youtubeBookmarks").putString("audioSource","youtube").commit();
+      app.finish();
+    });
+    waitForIdleSync();
+    app = (MainActivity) startActivitySync(intent);
+    waitForIdleSync();
+    test("default device mode has no fabricated catalogue or sample playback", () -> {
+      check(!app.demo(), "Default mode must be device-backed");
+      for (String section : app.sections) {
+        app.navigate(section);
+        check(!contains(app.content, "The Lost Horizon") && !contains(app.content, "Monsoon Letters"), "Sample title exposed in " + section);
+      }
+      app.navigate("Home");
+      check(contains(app.content, "Favourite apps"), "Real app row absent");
+      check(contains(app.content, "Discover in your apps"), "Provider discovery absent");
+      check(app.player == null, "Sample player created in production mode");
+    });
+    test("installed app discovery uses actual packages and icons", () -> {
+      app.scanApps();
+      check(app.apps.size() >= 2, "Missing launchable apps");
+      for (MainActivity.AppEntry entry : app.apps) {
+        check(entry.icon != null && entry.intent.getComponent() != null, "App lacks real icon/launch component");
+        check(!entry.pkg.equals(app.getPackageName()), "Flow listed itself");
+        try { app.getPackageManager().getPackageInfo(entry.pkg, 0); }
+        catch (android.content.pm.PackageManager.NameNotFoundException e) { throw new AssertionError("Fabricated app"); }
+      }
+      app.navigate("Apps");
+      check(contains(app.content, "Actual installed apps"), "Installed app view missing");
+    });
+    test("real YouTube search URI encoding and remote keyboard", () -> {
+      android.content.Intent query = app.live.youtubeIntent("songs & jazz + தமிழ்", false);
+      check("https".equals(query.getData().getScheme()), "Search must use HTTPS");
+      check("songs & jazz + தமிழ்".equals(query.getData().getQueryParameter("search_query")), "Query corrupted");
+      app.navigate("Audio"); app.live.search(true);
+      EditText input = editText(app.drawer);
+      check(!find(app.drawer, "Search on YouTube").isEnabled(), "Empty query enabled");
+      click("q");
+      check(input.getText().toString().equals("q"), "Remote keyboard did not enter text");
+      input.setText("artist album");
+      check(find(app.drawer, "Search on YouTube").isEnabled(), "Real search disabled");
+      check(!contains(app.drawer, "Mint Horizon"), "Dummy result exposed");
+      app.closeDrawer();
+    });
+    test("YouTube URL validation rejects other hosts and unsafe schemes", () -> {
+      check("dQw4w9WgXcQ".equals(LiveFlow.videoId("https://youtu.be/dQw4w9WgXcQ?si=a")), "Short URL rejected");
+      check("dQw4w9WgXcQ".equals(LiveFlow.videoId("https://www.youtube.com/watch?v=dQw4w9WgXcQ")), "Watch URL rejected");
+      check(LiveFlow.videoId("https://youtube.com.evil.example/watch?v=dQw4w9WgXcQ") == null, "Spoofed host accepted");
+      check(LiveFlow.videoId("javascript:alert(1)") == null, "Unsafe scheme accepted");
+      check(LiveFlow.videoId("https://youtube.com/watch?v=bad") == null, "Invalid video accepted");
+    });
+    test("saved real YouTube links persist without fabricated metadata", () -> {
+      app.navigate("My list"); app.live.addBookmark();
+      ArrayList<EditText> fields = new ArrayList<>(); collectFields(app.drawer, fields);
+      check(fields.size() == 2, "Link inputs missing");
+      fields.get(0).setText("https://youtu.be/dQw4w9WgXcQ");
+      fields.get(1).setText("My saved music link"); click("Save link");
+      check(app.live.bookmarks().length() == 1, "Link not saved");
+      app.build();
+      check(contains(app.content, "My saved music link"), "Link not rendered after recreation");
+      check(app.prefs.getString("youtubeBookmarks", "").contains("dQw4w9WgXcQ"), "Link not persisted");
+    });
+    test("YouTube controls are honest without media-session access", () -> {
+      app.navigate("Audio");
+      check(app.youtube.controller == null, "Unexpected media session on emulator");
+      check(!app.live.play.isEnabled() && !app.live.seek.isEnabled(), "Fake playback controls enabled");
+      check(!app.live.next.isEnabled(), "Fake next control enabled");
+      check(contains(app.content, "ACCESS NOT ENABLED") || contains(app.content, "NO YOUTUBE SESSION"), "Missing truthful connection state");
+      app.live.playbackLimits();
+      check(contains(app.drawer, "Video hide: unavailable"), "Hidden-video limit not labelled");
+      check(contains(app.drawer, "Premium"), "Screen-off account requirements missing");
+      app.closeDrawer();
+      check(!YouTubeMedia.isYouTube(app.getPackageName()), "Other apps accepted as YouTube");
+      check(YouTubeMedia.isYouTube("com.google.android.apps.youtube.music"), "Official Music package rejected");
+    });
+    test("minimal glass dashboard uses live device values", () -> {
+      app.navigate("Dashboard");
+      check(contains(app.content, "MINIMAL GLASS"), "Minimal Glass theme absent");
+      check(contains(app.content, android.os.Build.HARDWARE), "Actual CPU hardware missing");
+      check(!contains(app.content, "SDM665"), "Reference CPU leaked");
+      app.design.refreshMetrics();
+      check(app.metricViews.size() >= 5, "Live metric widgets missing");
+    });
+    test("optional media access opens explanation before Android grant", () -> {
+      app.navigate("Audio"); app.live.mediaAccess();
+      check(contains(app.drawer, "broader notification access"), "Permission scope not explained");
+      check(find(app.drawer, "Open Android access settings") != null, "System opt-in action missing");
+      app.closeDrawer();
+    });
+    test("real app launch records local recently-opened item", () -> {
+      MainActivity.AppEntry settings = app.findApp("com.android.settings");
+      check(settings != null, "Emulator Settings app missing");
+      app.launchApp(settings);
+      check(app.live.recentData().optLong(settings.pkg) > 0, "Launch timestamp missing");
+    });
+    waitForIdleSync();
+    runOnMainSync(() -> app.finish());
+    app = (MainActivity) startActivitySync(intent); waitForIdleSync();
+    test("recent apps survive returning from a real app launch", () -> {
+      app.navigate("Home");
+      check(contains(app.content, "Recently opened"), "Local recent row absent");
+      check(!app.live.recentApps().isEmpty(), "Launch history not restored");
+    });
+    test("local source starts a real foreground audio service", () -> {
+      app.prefs.edit().putString("audioSource","local").apply();app.navigate("Audio");
+      check(app.localAudio!=null,"Local service did not bind");app.live.playLocal(0);
+    });
+    awaitLocal(0);
+    shell("cmd notification allow_listener tv.flow.mobile/tv.flow.mobile.MediaAccessService");
+    SystemClock.sleep(300);
+    test("granted media access discovers sessions but rejects non-YouTube sources", () -> {
+      check(app.youtube.allowed(),"Android media access grant not observed");
+      app.youtube.start();
+      android.media.session.MediaSessionManager manager=(android.media.session.MediaSessionManager)app.getSystemService(android.content.Context.MEDIA_SESSION_SERVICE);
+      boolean own=false;
+      for(android.media.session.MediaController session:manager.getActiveSessions(app.youtube.component))
+        if(app.getPackageName().equals(session.getPackageName()))own=true;
+      check(own,"No active local session to challenge source filter");
+      check(app.youtube.controller==null,"Local session was misidentified as YouTube");
+    });
+    shell("cmd notification disallow_listener tv.flow.mobile/tv.flow.mobile.MediaAccessService");
+    SystemClock.sleep(200);
+    test("revoking media access clears listener and YouTube controller", () -> {
+      app.youtube.start();check(!app.youtube.allowed(),"Access not revoked");
+      check(!app.youtube.listening && app.youtube.controller==null,"Stale privileged controller retained");
+    });
+    test("local playback exposes actual duration, metadata and supported controls", () -> {
+      app.live.updateMedia();
+      check(app.localAudio.foreground && app.localAudio.playing(),"No foreground playback");
+      check(app.youtube.duration()>=29900,"Actual sample duration missing");
+      check(contains(app.content,"Mint Horizon"),"Real track metadata absent");
+      check(app.live.play.isEnabled() && app.live.seek.isEnabled(),"Supported local controls disabled");
+      app.youtube.seek(10000);
+    });
+    SystemClock.sleep(350);
+    test("local seeking and queue use real playback", () -> {
+      check(app.localAudio.player.getCurrentPosition()>9000,"Local seek did not execute");
+      app.localAudio.enqueue(1);app.youtube.act(android.media.session.PlaybackState.ACTION_SKIP_TO_NEXT);
+    });
+    awaitLocal(1);
+    test("local next consumes queue and search keeps playing", () -> {
+      check(app.localAudio.queue.isEmpty(),"Local queue did not consume next");
+      app.live.search(true);EditText query=editText(app.drawer);query.setText("slate");
+      check(contains(app.drawer,"Slate Rain") && !contains(app.drawer,"Mint Horizon"),"Local song filtering failed");
+      query.setText("original bundled");check(contains(app.drawer,"Mint Horizon"),"Album filtering failed");
+      check(app.localAudio.playing(),"Search interrupted local playback");app.closeDrawer();
+      app.youtube.act(android.media.session.PlaybackState.ACTION_PAUSE);
+    });
+    SystemClock.sleep(250);
+    test("local media-session pause and resume", () -> {
+      check(!app.localAudio.playing(),"Local pause did not execute");
+      app.youtube.act(android.media.session.PlaybackState.ACTION_PLAY);
+    });
+    awaitLocal(1);
+    test("black screen has no widgets and local playback continues", () -> {
+      app.live.blackScreen();check(app.blackOverlay!=null,"Black screen missing");
+      check(!(app.blackOverlay instanceof ViewGroup),"Black view contains widgets");
+      check(app.localAudio.playing(),"Black screen interrupted local audio");
+    });
+    waitForIdleSync();SystemClock.sleep(250);
+    android.graphics.Bitmap black=getUiAutomation().takeScreenshot();
+    check(black!=null,"Black view capture missing");
+    boolean pixelsBlack=black.getPixel(black.getWidth()/2,black.getHeight()/2)==android.graphics.Color.BLACK;
+    int centerX=black.getWidth()/2,centerY=black.getHeight()/2;black.recycle();
+    runOnMainSync(() -> {app.onBackPressed();check(app.blackOverlay==null,"Back failed to leave black screen");app.live.blackScreen();});
+    waitForIdleSync();
+    long tapTime=SystemClock.uptimeMillis();
+    sendPointerSync(MotionEvent.obtain(tapTime,tapTime,MotionEvent.ACTION_DOWN,centerX,centerY,0));
+    sendPointerSync(MotionEvent.obtain(tapTime,tapTime+50,MotionEvent.ACTION_UP,centerX,centerY,0));
+    waitForIdleSync();
+    test("black pixels verified and touch or Back restores the UI", () -> {
+      check(pixelsBlack,"Focus/UI overlay tinted the black pixels");
+      check(app.blackOverlay==null,"Touch failed to leave black view");
+      check(app.localAudio.playing(),"Black view dismissal stopped playback");
+    });
+    // API 29+ allows creation and deletion of our own MediaStore fixture without storage permission.
+    if(Build.VERSION.SDK_INT>=29) {
+      final android.net.Uri[] fixture=new android.net.Uri[1];
+      test("user-selected content URI imports real audio metadata",() -> {
+        android.content.ContentValues values=new android.content.ContentValues();
+        values.put(android.provider.MediaStore.Audio.Media.DISPLAY_NAME,"Flow verification.wav");
+        values.put(android.provider.MediaStore.Audio.Media.MIME_TYPE,"audio/wav");
+        values.put(android.provider.MediaStore.Audio.Media.RELATIVE_PATH,"Music/FlowTVTest");
+        fixture[0]=app.getContentResolver().insert(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,values);
+        check(fixture[0]!=null,"Could not create own fixture");
+        try(java.io.InputStream input=app.getAssets().open("mint.wav");java.io.OutputStream output=app.getContentResolver().openOutputStream(fixture[0])) {
+          byte[] buffer=new byte[8192];int count;while((count=input.read(buffer))!=-1)output.write(buffer,0,count);
+        } catch(java.io.IOException e){throw new AssertionError(e);}
+        app.live.importAudio(Collections.singletonList(fixture[0]),0);
+      });
+      long deadline=SystemClock.uptimeMillis()+15000;
+      final boolean[] imported=new boolean[1];
+      while(SystemClock.uptimeMillis()<deadline) {
+        runOnMainSync(() -> imported[0]=app.localAudio.library.size()>3);
+        if(imported[0])break;SystemClock.sleep(100);
+      }
+      check(imported[0],"Import did not finish");
+      test("imported file is playable, not a placeholder",() -> app.live.playLocal(3));
+      awaitLocal(3);
+      test("imported content playback duration is real",() -> {
+        check(app.localAudio.player.getDuration()>=29900,"Imported audio did not decode");
+        app.localAudio.stopPlayback();app.getContentResolver().delete(fixture[0],null,null);
+        app.prefs.edit().remove("localAudio").apply();app.localAudio.refreshLibrary();app.live.playLocal(0);
+      });
+      awaitLocal(0);
+    }
+    final long[] beforeSleep=new long[1];
+    runOnMainSync(() -> {app.youtube.seek(1000);});SystemClock.sleep(200);
+    runOnMainSync(() -> beforeSleep[0]=app.localAudio.player.getCurrentPosition());
+    shell("input keyevent KEYCODE_SLEEP");SystemClock.sleep(1300);
+    test("local audio continues while emulator display is off",() -> {
+      android.os.PowerManager power=(android.os.PowerManager)app.getSystemService(android.content.Context.POWER_SERVICE);
+      check(!power.isInteractive(),"Display did not become noninteractive");
+      check(app.localAudio.playing(),"Local audio stopped with display off");
+      check(app.localAudio.player.getCurrentPosition()>beforeSleep[0]+700,"Playback position did not advance with display off");
+      check(!app.resumed,"Activity still polls while display off");
+    });
+    shell("input keyevent KEYCODE_WAKEUP");shell("wm dismiss-keyguard");SystemClock.sleep(350);
+    test("screen wakes and local playback remains controllable",() -> {
+      android.os.PowerManager power=(android.os.PowerManager)app.getSystemService(android.content.Context.POWER_SERVICE);
+      check(power.isInteractive(),"Display did not wake");
+      check(app.localAudio.playing(),"Playback stopped on wake");app.live.updateMedia();
+    });
+    if (options != null && "true".equals(options.getString("liveCapture"))) {
+      runOnMainSync(() -> app.remote = false);
+      screenshot("live-01-home", () -> app.navigate("Home"));
+      screenshot("live-02-apps", () -> app.navigate("Apps"));
+      screenshot("live-03-new", () -> app.navigate("New"));
+      screenshot("live-04-dashboard", () -> app.navigate("Dashboard"));
+      screenshot("live-05-audio", () -> {app.prefs.edit().putString("audioSource","youtube").apply();app.navigate("Audio");});
+      screenshot("live-06-search", () -> { app.navigate("Audio"); app.live.search(true); });
+      screenshot("live-07-media-access", () -> { app.navigate("Audio"); app.live.mediaAccess(); });
+      screenshot("live-08-my-list", () -> app.navigate("My list"));
+      screenshot("live-11-local-audio", () -> {app.prefs.edit().putString("audioSource","local").apply();app.navigate("Audio");});
+      screenshot("live-12-local-search", () -> {app.navigate("Audio");app.live.localSearch();});
+      screenshot("live-13-black-screen", () -> {app.navigate("Audio");app.live.blackScreen();});
+      runOnMainSync(() -> {app.onBackPressed();app.prefs.edit().putString("audioSource","youtube").apply();});
+      runOnMainSync(() -> { app.preview = false; app.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT); });
+      long deadline = SystemClock.uptimeMillis() + 15000;
+      while (app.landscape() && SystemClock.uptimeMillis() < deadline) SystemClock.sleep(100);
+      check(!app.landscape(), "Portrait transition failed");
+      screenshot("live-09-portrait-home", () -> app.navigate("Home"));
+      screenshot("live-10-portrait-audio", () -> app.navigate("Audio"));
+      runOnMainSync(() -> { app.preview = true; app.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE); });
+    }
+  }
+
+  void awaitLocal(int track) {
+    long deadline=SystemClock.uptimeMillis()+15000;
+    final boolean[] ready=new boolean[1];
+    while(SystemClock.uptimeMillis()<deadline) {
+      runOnMainSync(() -> ready[0]=app.localAudio!=null && app.localAudio.track==track && app.localAudio.playing());
+      if(ready[0])return;SystemClock.sleep(75);
+    }
+    throw new AssertionError("Local audio did not start track "+track);
+  }
+  void shell(String command) throws Exception {
+    try(android.os.ParcelFileDescriptor fd=getUiAutomation().executeShellCommand(command);
+        java.io.InputStream input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(fd)) {
+      byte[] bytes=new byte[1024];while(input.read(bytes)!=-1){}
+    }
+  }
+
+  void collectFields(View view, ArrayList<EditText> fields) {
+    if (view instanceof EditText) fields.add((EditText)view);
+    if (view instanceof ViewGroup) { ViewGroup group = (ViewGroup)view; for (int n=0;n<group.getChildCount();n++) collectFields(group.getChildAt(n), fields); }
+  }
+
   @Override
   public void onStart() {
     super.onStart();
@@ -210,6 +479,7 @@ public class FlowSmoke extends Instrumentation {
           .edit()
           .clear()
           .putInt("visualVersion", 2)
+          .putBoolean("designDemo", true)
           .putBoolean("preview", true)
           .putBoolean("remote", true)
           .commit();
@@ -442,6 +712,8 @@ public class FlowSmoke extends Instrumentation {
             check(!app.player.isPlaying(), "Audio continued in background");
             check(!app.resumed, "Ticker still enabled");
           });
+      runLive(i);
+      runOnMainSync(() -> {if(app.localAudio!=null)app.localAudio.stopPlayback();});
       out.putString("stream", report + "\n" + passed + " checks passed\n");
       out.putInt("passed", passed);
       finish(Activity.RESULT_OK, out);

@@ -34,64 +34,121 @@ INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=PASS on-screen remote touch restores focus and activates
 
 INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 01-home
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 02-new
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 03-apps
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 04-kids
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 05-quick-settings
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 06-wifi
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 07-sound-display
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 08-privacy
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 09-dashboard
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 10-ports
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 11-audio
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 12-song-search
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 13-movies
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 14-shows
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 15-my-list
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 16-title-details
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 17-portrait-home
-
-INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_STATUS: stream=CAPTURE 18-portrait-audio
-
-INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=PASS background stops audio and dashboard polling
 
 INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_RESULT: passed=13
+INSTRUMENTATION_STATUS: stream=PASS default device mode has no fabricated catalogue or sample playback
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS installed app discovery uses actual packages and icons
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS real YouTube search URI encoding and remote keyboard
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS YouTube URL validation rejects other hosts and unsafe schemes
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS saved real YouTube links persist without fabricated metadata
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS YouTube controls are honest without media-session access
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS minimal glass dashboard uses live device values
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS optional media access opens explanation before Android grant
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS real app launch records local recently-opened item
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS recent apps survive returning from a real app launch
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local source starts a real foreground audio service
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS granted media access discovers sessions but rejects non-YouTube sources
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS revoking media access clears listener and YouTube controller
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local playback exposes actual duration, metadata and supported controls
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local seeking and queue use real playback
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local next consumes queue and search keeps playing
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local media-session pause and resume
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS black screen has no widgets and local playback continues
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS black pixels verified and touch or Back restores the UI
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS user-selected content URI imports real audio metadata
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS imported file is playable, not a placeholder
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS imported content playback duration is real
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS local audio continues while emulator display is off
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS screen wakes and local playback remains controllable
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-01-home
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-02-apps
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-03-new
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-04-dashboard
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-05-audio
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-06-search
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-07-media-access
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-08-my-list
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-11-local-audio
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-12-local-search
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-13-black-screen
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-09-portrait-home
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=CAPTURE live-10-portrait-audio
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: passed=37
 INSTRUMENTATION_RESULT: stream=PASS home sample labels and navigation
 PASS catalogue content, language and provider filters
 PASS Kids age selection updates sample recommendations
@@ -105,7 +162,31 @@ PASS favourites order persistence and cancel
 PASS remote target focus setup
 PASS on-screen remote touch restores focus and activates
 PASS background stops audio and dashboard polling
+PASS default device mode has no fabricated catalogue or sample playback
+PASS installed app discovery uses actual packages and icons
+PASS real YouTube search URI encoding and remote keyboard
+PASS YouTube URL validation rejects other hosts and unsafe schemes
+PASS saved real YouTube links persist without fabricated metadata
+PASS YouTube controls are honest without media-session access
+PASS minimal glass dashboard uses live device values
+PASS optional media access opens explanation before Android grant
+PASS real app launch records local recently-opened item
+PASS recent apps survive returning from a real app launch
+PASS local source starts a real foreground audio service
+PASS granted media access discovers sessions but rejects non-YouTube sources
+PASS revoking media access clears listener and YouTube controller
+PASS local playback exposes actual duration, metadata and supported controls
+PASS local seeking and queue use real playback
+PASS local next consumes queue and search keeps playing
+PASS local media-session pause and resume
+PASS black screen has no widgets and local playback continues
+PASS black pixels verified and touch or Back restores the UI
+PASS user-selected content URI imports real audio metadata
+PASS imported file is playable, not a placeholder
+PASS imported content playback duration is real
+PASS local audio continues while emulator display is off
+PASS screen wakes and local playback remains controllable
 
-13 checks passed
+37 checks passed
 
 INSTRUMENTATION_CODE: -1

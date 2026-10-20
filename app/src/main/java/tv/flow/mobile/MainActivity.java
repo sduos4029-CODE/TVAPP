@@ -32,6 +32,26 @@ public class MainActivity extends Activity {
       LINE = 0xff344258;
   float designScale = 1;
   FlowDesign design;
+  LiveFlow live;
+  YouTubeMedia youtube;
+  LocalAudioService localAudio;
+  boolean localBound;
+  View blackOverlay;
+  final ServiceConnection localConnection = new ServiceConnection() {
+    @Override public void onServiceConnected(ComponentName name, IBinder binder) {
+      localAudio = ((LocalAudioService.LocalBinder)binder).service();
+      localAudio.changed = () -> { if(live!=null && resumed) live.updateMedia(); };
+      if(live!=null) live.updateMedia();
+    }
+    @Override public void onServiceDisconnected(ComponentName name) { localAudio=null; if(live!=null)live.updateMedia(); }
+  };
+  boolean watchingPackages;
+  final BroadcastReceiver packageChanges = new BroadcastReceiver() {
+    @Override public void onReceive(Context context, Intent intent) {
+      scanApps();
+      if (resumed && !demo() && !page.equals("Audio") && !page.equals("Dashboard")) build();
+    }
+  };
   LinearLayout root, body, content, top, audioInfo;
   FrameLayout stage;
   LinearLayout drawer;
@@ -471,6 +491,16 @@ public class MainActivity extends Activity {
     getWindow().setStatusBarColor(BG);
     getWindow().setNavigationBarColor(BG);
     prefs = getSharedPreferences("flow", MODE_PRIVATE);
+    youtube = new YouTubeMedia(this);
+    localBound=bindService(new Intent(this,LocalAudioService.class),localConnection,Context.BIND_AUTO_CREATE);
+    IntentFilter packages = new IntentFilter();
+    packages.addAction(Intent.ACTION_PACKAGE_ADDED);
+    packages.addAction(Intent.ACTION_PACKAGE_REMOVED);
+    packages.addAction(Intent.ACTION_PACKAGE_CHANGED);
+    packages.addDataScheme("package");
+    if (Build.VERSION.SDK_INT >= 33) registerReceiver(packageChanges, packages, Context.RECEIVER_EXPORTED);
+    else registerReceiver(packageChanges, packages);
+    watchingPackages = true;
     remote = prefs.getBoolean("remote", false);
     preview = prefs.getBoolean("preview", true);
     if (prefs.getInt("visualVersion", 0) < 2) {
@@ -529,6 +559,9 @@ public class MainActivity extends Activity {
   protected void onResume() {
     super.onResume();
     resumed = true;
+    scanApps();
+    youtube.start();
+    if (!demo()) build();
     handler.removeCallbacks(ticker);
     handler.post(ticker);
   }
@@ -538,6 +571,7 @@ public class MainActivity extends Activity {
     resumed = false;
     handler.removeCallbacks(ticker);
     if (player != null && player.isPlaying()) player.pause();
+    youtube.stop();
     super.onPause();
   }
 
@@ -545,6 +579,10 @@ public class MainActivity extends Activity {
   protected void onDestroy() {
     handler.removeCallbacksAndMessages(null);
     if (player != null) player.release();
+    if (watchingPackages) unregisterReceiver(packageChanges);
+    youtube.stop();
+    if(localAudio!=null) localAudio.changed=null;
+    if(localBound) unbindService(localConnection);
     super.onDestroy();
   }
 
@@ -664,8 +702,33 @@ public class MainActivity extends Activity {
   }
 
   void build() {
+    blackOverlay=null;
     design = new FlowDesign(this);
+    live = new LiveFlow(this, design);
     design.build();
+  }
+
+  boolean demo() { return prefs.getBoolean("designDemo", false); }
+  boolean localMode() { return prefs.getString("audioSource", "youtube").equals("local"); }
+
+  @Override protected void onActivityResult(int request, int result, Intent data) {
+    super.onActivityResult(request,result,data);
+    if(request==70 && result==RESULT_OK && data!=null) {
+      ArrayList<Uri> uris=new ArrayList<>();
+      if(data.getClipData()!=null) for(int n=0;n<data.getClipData().getItemCount();n++) uris.add(data.getClipData().getItemAt(n).getUri());
+      else if(data.getData()!=null) uris.add(data.getData());
+      if(live!=null) live.importAudio(uris, data.getFlags());
+    }
+  }
+
+  void launchApp(AppEntry app) {
+    if (app == null) { toast("App unavailable on this device"); return; }
+    try {
+      startActivity(app.intent);
+      JSONObject recent = new JSONObject(prefs.getString("recentApps", "{}"));
+      recent.put(app.pkg, System.currentTimeMillis());
+      prefs.edit().putString("recentApps", recent.toString()).apply();
+    } catch (Exception e) { toast("Unable to open this app"); scanApps(); }
   }
 
   View firstFocusable(ViewGroup group) {
@@ -779,6 +842,7 @@ public class MainActivity extends Activity {
 
   @Override
   public void onBackPressed() {
+    if (blackOverlay!=null) { if(blackOverlay.getParent()!=null)((ViewGroup)blackOverlay.getParent()).removeView(blackOverlay);blackOverlay=null;return; }
     if (movingPackage != null) {
       cancelMove();
       build();
@@ -957,6 +1021,7 @@ public class MainActivity extends Activity {
   }
 
   void openGlobalSearch() {
+    if (!demo()) { live.search(false); return; }
     LinearLayout p = panel("Search");
     EditText q = new EditText(this);
     q.setSingleLine(true);
@@ -1099,7 +1164,7 @@ public class MainActivity extends Activity {
               + " · API "
               + Build.VERSION.SDK_INT
               + (detailed
-                  ? "\nFlow TV 0.2.0 · "
+                  ? "\nFlow TV 0.3.0 · "
                       + (tv() ? "TV" : "Phone/tablet")
                       + "\nBrand: "
                       + Build.BRAND
@@ -1344,6 +1409,7 @@ public class MainActivity extends Activity {
   }
 
   void updateAudio() {
+    if (!demo()) { if (live != null) live.updateMedia(); return; }
     if (!audioVisible || !page.equals("Audio") || trackStatus == null) return;
     if (queueButton != null) queueButton.setText("Queue (" + queue.size() + ")");
     trackStatus.setText(songTitles[track]);

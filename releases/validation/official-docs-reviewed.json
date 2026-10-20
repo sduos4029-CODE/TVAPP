@@ -1,0 +1,94 @@
+{
+  "review_date": "2026-10-21",
+  "timezone": "Asia/Kolkata",
+  "scope": "Official documentation retrieved and read; not actual YouTube or physical TV playback verification. Initial HTTP policy failures resolved during task.",
+  "documents": [
+    {
+      "title": "YouTube Premium benefits",
+      "url": "https://support.google.com/youtube/answer/6308116?hl=en",
+      "http_status": 200,
+      "response_bytes": 1645746,
+      "sha256": "d6dfc4cc3473225aac10b930e72532e9ec9b2eae1e5001e03cfeb88f0ed553d2"
+    },
+    {
+      "title": "YouTube supported devices",
+      "url": "https://support.google.com/youtube/answer/6308244?hl=en",
+      "http_status": 200,
+      "response_bytes": 1617377,
+      "sha256": "c4380217822281a01cda0b7cc83b21760ea82e2cc74fc732e7dc28369b24396f"
+    },
+    {
+      "title": "YouTube Music audio-only/video mode",
+      "url": "https://support.google.com/youtubemusic/answer/6313574?hl=en",
+      "http_status": 200,
+      "response_bytes": 1602126,
+      "sha256": "7888ec486e6686d13ac652fada830a780ca78c0d7a4734cacbda4d0adee92cf9"
+    },
+    {
+      "title": "YouTube API developer policies",
+      "url": "https://developers.google.com/youtube/terms/developer-policies",
+      "http_status": 200,
+      "response_bytes": 151821,
+      "sha256": "c643abb1d6ed018647eb0149c7029787d31dd22e6be52cb584530b1bf847fd39"
+    },
+    {
+      "title": "YouTube Data API search",
+      "url": "https://developers.google.com/youtube/v3/docs/search/list",
+      "http_status": 200,
+      "response_bytes": 210790,
+      "sha256": "f7beb96ab45b2608c61c6cf645e85d5a548060814bdbe640af5557893fbfc853"
+    },
+    {
+      "title": "Android MediaSessionManager",
+      "url": "https://developer.android.com/reference/android/media/session/MediaSessionManager",
+      "http_status": 200,
+      "response_bytes": 2291562,
+      "sha256": "042cbcea2904f44d4a8ee477b8cb2801fde244b82e5abc7b66030e0536e0af5f"
+    },
+    {
+      "title": "Android NotificationListenerService",
+      "url": "https://developer.android.com/reference/android/service/notification/NotificationListenerService",
+      "http_status": 200,
+      "response_bytes": 2761368,
+      "sha256": "38fa4642678fc1652b14bfb112df87b0aa2cab2b0d18669721bfd6ebe0ed69b9"
+    },
+    {
+      "title": "Android notification exemptions",
+      "url": "https://developer.android.com/develop/ui/views/notifications/notification-permission#exemptions",
+      "http_status": 200,
+      "response_bytes": 367671,
+      "sha256": "a7b83fe6ad93bec229e86fa5fc27dbd60417c9e73a2a4b0ffdb8f379789916de"
+    },
+    {
+      "title": "Android PowerManager",
+      "url": "https://developer.android.com/reference/android/os/PowerManager#goToSleep(long)",
+      "http_status": 200,
+      "response_bytes": 2344724,
+      "sha256": "1591e534a8ab01cd988a544a464e8bc6d6b56fbe9528be8c1f622e5c4e46e784"
+    },
+    {
+      "title": "realme support",
+      "url": "https://www.realme.com/in/support",
+      "http_status": 200,
+      "response_bytes": 339504,
+      "sha256": "dd7ddc6f3d08c14411d3d9fc512bf36fd91402a4368b68b7ad43bb5ca363af88"
+    },
+    {
+      "title": "realme manuals",
+      "url": "https://www.realme.com/in/support/user-manuals",
+      "http_status": 200,
+      "response_bytes": 165913,
+      "sha256": "fc3dd7019416a6537d5ad34249d51ff77800a691ab8db92088f4cb9f25d6bd6a"
+    }
+  ],
+  "unresolved": [
+    "No RMV2004-specific picture-off control verified",
+    "No actual YouTube playback exercised"
+  ],
+  "other_requests": [
+    {
+      "url": "https://www.realme.com/in/realme-tv/specs",
+      "http_status": 404
+    }
+  ]
+}

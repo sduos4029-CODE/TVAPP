@@ -1,55 +1,60 @@
-# Flow TV 0.2.0 — Android phone / TV preview
+# Flow TV 0.3.0
 
-A native Java Android app rebuilt around the supplied visual references. Option C uses dark navy, solid rounded slate cards, mint focus rings and lavender accents. Audio uses the bundled Doto dot-matrix font, an ivory/black palette and red playback controls.
+Native Android launcher/test app with real installed-app cards, a Minimal Glass dashboard, and an original Nothing-inspired dot-matrix listening screen. Dark navy, solid rounded slate cards, mint focus and lavender accents remain the Option C design. Audio uses black/white Doto typography and restrained red accents.
 
-**The screenshots in [releases/screenshots](releases/screenshots) are captured from the running APK.** Artwork is separately bundled imagery; navigation, cards, text, progress bars, drawers, keyboard and playback controls are native Android views, not a flattened screenshot.
+[Download the debug APK](releases/Flow-TV-v0.3.0-debug.apk) · [Actual v0.3 screenshots](releases/screenshots-v0.3) · [Feasibility and official references](YOUTUBE_FEASIBILITY.md) · [Validation](VALIDATION.md)
 
-## Install the mobile test APK
+## Install
 
-Download [Flow-TV-v0.2.0-debug.apk](releases/Flow-TV-v0.2.0-debug.apk). Android 8+ is required. Open the file on your phone and allow installation from that file manager if Android prompts you. The provided APK keeps the same application ID (`tv.flow.mobile`) and signing certificate as v0.1.0, so you can install it as an update and retain local favourites and watchlist.
+Android 8+; download the APK, open it on your phone and permit installation from that file manager if asked. Install over v0.1/v0.2 to retain favourites and preferences: the package `tv.flow.mobile` and signing certificate are unchanged. This is a normal activity and does not replace your phone's home launcher. The top-bar grid icon opens TV Preview, portrait/rotation and optional on-screen remote controls.
 
-The first launch opens landscape TV Preview. Use the grid icon in the top bar for portrait mode and the optional on-screen remote. This is a normal launchable activity; it does not replace your phone's home launcher.
+## Working device experience
 
-## Implemented
+- Real installed-app discovery, supplied package icons, launching, local favourites and touch/D-pad reordering. Cards refresh on package changes and on return to Flow. Recently opened means apps launched through Flow, not fabricated watch history or permission-based app surveillance.
+- Home and Movies/Shows/New/Kids open actual installed providers and real YouTube search. New apps are sorted by Android installation time. There is no connected live movie recommendation feed; no dummy film suggestions are shown by default. Kids search is not parental enforcement.
+- My list saves real user-entered YouTube links locally, validates hosts/video IDs, and opens the source. It does not download videos or invent metadata.
+- Minimal Glass dashboard: actual RAM/storage, processor/ABI/core information, permitted network/Bluetooth hardware information, OS traffic totals, exposed inputs/USB and system details. Unsupported metrics are hidden; phone readings are labelled. Polling stops off Dashboard and while inactive. No sample CPU/RAM/storage/network measurements.
+- Compact right-side settings, supported Android settings hand-offs, real device media volume where adjustable, app-only appearance brightness, privacy information, and confirmation before clearing history/data.
+- Native views and controls support touch, keyboard/D-pad, Android Back and landscape mobile preview. Artwork is not a flattened UI background.
 
-- Home: panoramic feature art, installed-app favourites, clearly labelled illustrative Continue Watching layout and compact sample catalogue rows. No real viewing history or live streaming availability is invented.
-- Movies / Shows / New: poster rows and four-column releases, local genre/language/provider/content-type filtering, distinct NEW RELEASE / NEWLY ADDED / NEW EPISODE labels and title details in a right-side panel.
-- My list: real local add/remove actions and saved counts. Existing v0.1 sample titles remain available so stored watchlist entries survive updating.
-- Apps: discovers actual launchable installed apps, loads their supplied icons and launches them. Favourite ordering is saved locally. Hold/drag a favourite, or long-press OK and move with arrows; OK saves and Back cancels. Missing apps expose a removal option. All Apps shows favourites first, then other installed apps.
-- Kids: separate illustrated catalogue, age-group choices that reorder local sample recommendations, and a parental-settings entry. These sample groups are not certified ratings and do not enforce device-wide restrictions.
-- Dashboard: native three-column rounded cards and device details. RAM and storage bars use actual API measurements; CPU shows supported hardware/ABI/core information. Wi-Fi, Bluetooth hardware availability, aggregate network counters, accessible inputs/USB devices and system details use the installed device. Phone readings are explicitly labelled. Unsupported GPU/CPU usage and unsupported traffic widgets are omitted. No sample hardware values from the reference pictures are used. Hardware polling stops outside Dashboard and when the app is inactive.
-- Settings: compact right-side panels, supported Android settings intents, sample-player volume, saved app appearance brightness, privacy information and confirmation before clearing queue/history or deleting local preferences. App brightness does not change system brightness or TV picture settings.
-- Audio: three original 30-second offline instrumental samples; actual MediaPlayer play/pause, seek, ±10 seconds, previous/next, volume, queue and local song/artist/album search. Search and queue browsing keep the current song playing. Results contain artwork, title, artist, bundled channel and duration. The TV keyboard, Play now and Add to queue are native controls.
-- Input: touch, Android Back, external keyboard/D-pad, focus rings, landscape TV preview, portrait layouts and an optional remote with physical 48dp touch buttons. Hold the on-screen OK button to invoke the focused tile's long-press action.
+## YouTube listening
 
-## Unavailable integrations
+The default source is **YouTube**. Search songs/artists/albums through the official app (or an HTTPS browser handler if unavailable). Show video opens the active official app when known. There is no API key configured and no fabricated in-app search results. A search result or saved link is not a YouTube playback queue.
 
-No YouTube, online/live catalogue, trailer streams, cross-app watch history, default-TV-home registration, privileged HDMI switching, device-wide parental enforcement, microphone/voice search, hide-video or screen-off/background playback is integrated. These controls are omitted or explicitly labelled unavailable. Audio pauses when Flow leaves the foreground. A black UI is not a powered-off display.
+Optional **Connect YouTube controls** explains Android's broad notification access before opening its system settings. Flow does not read/store notification contents. When granted, it reads only active YouTube/YouTube Music media sessions and displays the actual exposed metadata/artwork/state. It shows transport actions only when the session reports support. No active session means no pretend playback buttons or timing. Opening YouTube does not itself grant control, and session access does not establish Premium eligibility.
 
-Provider names and movie artwork are illustrative labels, not statements that a title is available from that provider. App tiles and hardware readings will differ from the pictures according to what is installed and exposed on the actual device. No invented Wi-Fi networks, Bluetooth headsets, CPU load or network speed values are shown.
+**YouTube Hide Video and Screen Off are not verified or enabled.** Flow never extracts streams, hides an API player, bypasses Premium or forces background playback. Official app audio/background modes depend on membership, content, device and app support. Official documentation limits background playback to mobile apps, so Flow disables YouTube background controls on Android TV. If YouTube pauses when leaving its app, return to its official player. YouTube has its own ads, account and privacy practices; Flow cannot change them.
 
-## Privacy
+Current official YouTube, Android and realme documentation was retrieved and reviewed. YouTube Android Premium documents Settings → On-the-go; YouTube Music documents Song/Video mode for eligible music memberships. These modes remain in the official apps. See the source-backed mobile/TV capability table in [YOUTUBE_FEASIBILITY.md](YOUTUBE_FEASIBILITY.md). No actual YouTube playback or physical realme picture-off was verified.
 
-No ads, tracking SDKs, analytics or runtime network requests. The app has only ACCESS_NETWORK_STATE permission; it does not request a microphone, location, Bluetooth/nearby-device or broad storage permission. Favourites, ordering, watchlist and appearance settings stay locally. Other apps and TV firmware have separate privacy settings.
+## Fully functional local audio
 
-## Build and checks
+Choose **Local audio** in the listening screen. Three original bundled 30-second tracks make decoding/playback testable immediately. **Choose audio files** uses Android's document picker; only selected content URIs are read, with persistent access when the provider permits it. No broad storage or microphone permission is requested.
 
-JDK 17+ (tested with 21), Android SDK 35 / build-tools 35.0.0, Gradle 8.10.2. Set `ANDROID_HOME` or ignored `local.properties`, then:
+Local playback has actual metadata and embedded artwork where present, play/pause, previous/next, ±10-second seek, seek bar, device volume, separate queue, and song/artist/album search that leaves current playback running. A user-started foreground media service and media notification support playback while Flow is backgrounded. CPU wake locking is limited to actual MediaPlayer playback; the display is not held on.
+
+For local audio, **Display options** explains using the phone's physical power button and normal wake/unlock method. **Black screen · display stays on** is a real black view with no widgets, dismissed by touch/Back/remote or keyboard key. It does not turn off the backlight or panel. Display-off/wake during local playback is tested on an Android 11 emulator; real-phone and realme TV behavior still needs testing. A truly off display has no widgets. Flow has no model-specific realme picture-off command, and standby may stop audio.
+
+## Samples and privacy
+
+The earlier illustrated catalogue and sample playback UI remain available only through the explicitly labelled **Design preview · samples** setting. This mode is off by default, including on update. It is not live availability or history. Existing sample watchlist data remains separate from real YouTube saved links.
+
+No ads, analytics, tracking SDKs, runtime network requests or microphone access in Flow. Search/link actions hand off to external apps, which have their own policies. Favourites, lists, imported-file references and apps opened through Flow stay local. Optional notification access is managed/revoked in Android settings. Deleting Flow data stops local audio and releases its persisted document grants; it does not revoke Android notification access or delete original music files.
+
+## Build and reproduce
+
+JDK 17+ (tested 21), Android SDK/build-tools 35, Gradle 8.10.2:
 
 ```sh
 ./gradlew assembleDebug assembleDebugAndroidTest lintDebug
 ```
 
-The prepared cloud snapshot can run `./scripts/build-cloud.sh` offline. Main output: `app/build/outputs/apk/debug/app-debug.apk`. Test output: `app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`.
-
-Install both APKs in a disposable emulator, then run:
+The prepared environment can use `./scripts/build-cloud.sh` offline. APK: `app/build/outputs/apk/debug/app-debug.apk`. Install main and test APKs into a disposable emulator, then run:
 
 ```sh
-adb shell am instrument -r -w -e capture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
+adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
 ```
 
-**Instrumentation resets that test installation's local preferences.** Require the reported pass count and successful instrumentation completion, not just adb's exit status. Optional actual screen captures are written to the test app's internal `files/visuals` folder and can be collected with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
+Instrumentation resets that installation's preferences, launches a real installed Settings app, creates/deletes its own MediaStore audio fixture, and sleeps/wakes the emulator display. Do not run it on your personal installation. Check the reported pass count, absence of FAIL/crash, and instrumentation completion; adb exit alone is insufficient. Optional captures are in internal `files/visuals`, collectible with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
 
-See [VALIDATION.md](VALIDATION.md) for the executed checks and physical-device limitations. Native device/playback behavior is in `MainActivity.java`; reference layouts and separate artwork rendering are in `FlowDesign.java`. No third-party Android runtime dependencies or web UI are used.
-
-Audio is generated by [scripts/generate_audio.py](scripts/generate_audio.py), using original synthesized chords. The Doto font is redistributed under its bundled [SIL Open Font License](app/src/main/assets/fonts/OFL.txt). Cinematic and Kids artwork are original generated illustrations used as sample assets.
+No Android runtime libraries or web UI are used. MainActivity owns device/lifecycle behavior; FlowDesign owns Option C layouts; LiveFlow owns device-backed screens; YouTubeMedia owns documented media-controller access; LocalAudioService owns local playback. Doto uses its bundled SIL Open Font License. Bundled audio is original synthesis generated by `scripts/generate_audio.py`; illustrative artwork in the optional design preview is generated imagery.
