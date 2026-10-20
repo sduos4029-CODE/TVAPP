@@ -1,11 +1,21 @@
-# Flow TV — Android mobile test build
+# Flow TV 0.2.0 — reference UI rebuild
 
-Download **Flow-TV-debug.apk** in this folder using GitHub's Download raw file button, then open it on an Android 8+ phone to install. Allow installation from your file manager when Android prompts you.
+[Download the updated Android APK](Flow-TV-v0.2.0-debug.apk)
 
-Version 0.1.0 · package `tv.flow.mobile` · development signing key.
+Install over v0.1.0 to retain local favourites and watchlist. Android 8+ is required. Application ID and development signing certificate are unchanged. `Flow-TV-debug.apk` is an alias for the latest build.
 
-Includes the Minimal Glass dashboard with actual phone readings, installed-app favourites, watchlist, landscape TV Preview, on-screen remote, and offline sample audio with search and queue.
+This version replaces the earlier basic interface with native layouts based on the supplied references: illustrated Home and Kids banners, compact catalogue rows, poster grids, actual installed-app icons, native hardware Dashboard, compact side panels, and dot-matrix audio/search.
 
-Build, lint, APK signature verification and 11 Android 11 emulator smoke checks passed. Physical realme TV testing remains pending. Live catalogues, YouTube, HDMI control, voice search, device-wide parental enforcement and screen-off/background audio are unavailable and labelled accordingly.
+These are **actual screenshots of the running APK**, not UI concept images:
 
-This folder contains the installable APK. It is a development test build, not a store release.
+| Home | Dashboard |
+| --- | --- |
+| ![Home](screenshots/01-home.png) | ![Dashboard](screenshots/09-dashboard.png) |
+
+| Kids | Audio search |
+| --- | --- |
+| ![Kids](screenshots/04-kids.png) | ![Audio search](screenshots/12-song-search.png) |
+
+[All captured screens](screenshots) · [Source](../app/src) · [Validation](../VALIDATION.md) · [SHA-256 checksums](SHA256SUMS.txt)
+
+Artwork, provider labels and catalogue content are illustrative. Hardware readings and app icons come from the installed device. Unsupported readings are hidden or marked unavailable. No YouTube/live catalogue, voice, HDMI switching, parental enforcement or screen-off playback is claimed. Physical realme TV testing remains pending.
