@@ -1,0 +1,5 @@
+INSTRUMENTATION_STATUS: stream=TOUCH All Apps (13) / null at Rect(48, 492 - 172, 516)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=2 landscape screenshots captured; visual review only
+INSTRUMENTATION_CODE: -1

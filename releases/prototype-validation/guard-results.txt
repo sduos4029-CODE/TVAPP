@@ -1,0 +1,13 @@
+INSTRUMENTATION_STATUS: stream=PASS startup crash-loop recovery disables only this app Home alias
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS recovery screen remains launchable after startup guard
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: passed=2
+INSTRUMENTATION_RESULT: stream=PASS startup crash-loop recovery disables only this app Home alias
+PASS recovery screen remains launchable after startup guard
+
+2 checks passed
+
+INSTRUMENTATION_CODE: -1

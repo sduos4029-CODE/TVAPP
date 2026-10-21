@@ -63,3 +63,7 @@ adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mo
 Tests reset local data, use explicitly synthetic catalogue transport/parser fixtures, launch Settings, import/delete their own audio fixture and sleep/wake the emulator. Do not run them on a personal installation. Optional screenshots-only mode uses `-e screensOnly true`; it enables real source requests and does not inject successful results. Captures are stored in internal `files/visuals`.
 
 Doto is bundled under the SIL Open Font License. The three bundled sample WAVs are original Flow audio. No Kotlin, AppCompat, coroutines or other runtime dependency migration was needed.
+
+## Supplied ZIP review and separate prototype
+
+The supplied `FlowTV.zip` is a smaller Kotlin launcher, separate from the full app above. Its corrected phone-test build installs alongside Flow TV and does not include Dashboard or audio. [Review/comparison](reviews/FlowTV-zip-review.md) · [Prototype APK](releases/Flow-TV-Prototype-v0.1.1-debug.apk) · [Prototype source ZIP](releases/Flow-TV-Prototype-v0.1.1-source.zip).

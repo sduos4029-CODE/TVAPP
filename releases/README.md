@@ -25,3 +25,7 @@ Prime Video, JioHotstar and Airtel Xstream logins remain private. No verified In
 [Checksums](SHA256SUMS.txt) · [Permission audit](validation/permission-audit.json) · [Installation warning report](../INSTALLATION.md)
 
 Versioned older APKs/screenshots remain historical. `Flow-TV-debug.apk` aliases this release.
+
+## Supplied ZIP review and separate prototype
+
+The supplied `FlowTV.zip` is a smaller Kotlin launcher, separate from the full app above. Its corrected phone-test build installs alongside Flow TV and does not include Dashboard or audio. [Review/comparison](../reviews/FlowTV-zip-review.md) · [Prototype APK](Flow-TV-Prototype-v0.1.1-debug.apk) · [Prototype source ZIP](Flow-TV-Prototype-v0.1.1-source.zip).

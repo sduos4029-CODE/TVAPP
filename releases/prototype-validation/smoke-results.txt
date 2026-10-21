@@ -1,0 +1,67 @@
+INSTRUMENTATION_STATUS: stream=PASS normal phone and recovery launcher entries exist without a Home requirement
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS APK has no privileged or sensitive access permissions
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS installed app catalogue contains real deduplicated packages and icons
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS phone feed accurately reports TV listings unavailable
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS public TV parser preserves long IDs and rejects hidden or own records
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS title intents discard components selectors extras and URI grants
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS dangerous title schemes are rejected
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS Home-intent escape window counts only three presses within two seconds
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS crash timestamps use actual recent times and ignore future or malformed values
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS normal app starts and displays actual phone capability state
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=TOUCH All Apps (13) / null at Rect(48, 840 - 172, 864)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=TOUCH null / Open Calendar at Rect(24, 275 - 261, 485)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS touch opens All Apps, launches a real installed app and returns with Back
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS D-pad focus and OK open recovery settings
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS phone cannot enable TV Home candidate and default Home stays unchanged
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS disabling optional Home alias preserves recovery and normal launchers
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: passed=14
+INSTRUMENTATION_RESULT: stream=PASS normal phone and recovery launcher entries exist without a Home requirement
+PASS APK has no privileged or sensitive access permissions
+PASS installed app catalogue contains real deduplicated packages and icons
+PASS phone feed accurately reports TV listings unavailable
+PASS public TV parser preserves long IDs and rejects hidden or own records
+PASS title intents discard components selectors extras and URI grants
+PASS dangerous title schemes are rejected
+PASS Home-intent escape window counts only three presses within two seconds
+PASS crash timestamps use actual recent times and ignore future or malformed values
+PASS normal app starts and displays actual phone capability state
+PASS touch opens All Apps, launches a real installed app and returns with Back
+PASS D-pad focus and OK open recovery settings
+PASS phone cannot enable TV Home candidate and default Home stays unchanged
+PASS disabling optional Home alias preserves recovery and normal launchers
+
+14 checks passed
+
+INSTRUMENTATION_CODE: -1

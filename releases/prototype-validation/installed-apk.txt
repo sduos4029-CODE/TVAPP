@@ -1,0 +1,3 @@
+Installed emulator APK, final build APK and delivered APK have identical SHA-256:
+6c41d2e1558d26e05935b8fd421ce502fea3de352b7bd0ad64f53ccdcdfb9764
+Debug certificate signature verified with Android apksigner.
