@@ -17,13 +17,16 @@ final class SharedArtwork {
     @Override protected int sizeOf(String key,Bitmap value){return value.getAllocationByteCount();}
   };
   SharedArtwork(MainActivity activity){a=activity;}
-  void load(String address,ImageView view,TextView empty){
+  void load(String address,ImageView view,TextView empty){load(address,view,empty,false);}
+  void load(String address,ImageView view,TextView empty,boolean catalogue){
+    if(catalogue && !a.openCatalogue.enabled()){empty.setText("Catalogue networking off");return;}
     if(address==null || address.isEmpty()){empty.setText("No shared\nartwork");return;}
     view.setTag(address);
     Bitmap stored=cache.get(address);if(stored!=null){view.setImageBitmap(stored);empty.setVisibility(View.GONE);return;}
     worker.execute(()->{
       Bitmap bitmap=null;
       try{
+        if(catalogue && !a.openCatalogue.enabled())return;
         Uri uri=Uri.parse(address);InputStream input;HttpURLConnection connection=null;
         if("content".equals(uri.getScheme()) || "android.resource".equals(uri.getScheme()))input=a.getContentResolver().openInputStream(uri);
         else if("https".equals(uri.getScheme()) && uri.getHost()!=null && uri.getUserInfo()==null){
@@ -46,7 +49,7 @@ final class SharedArtwork {
       }catch(Exception ignored){}
       final Bitmap result=bitmap;
       a.handler.post(()->{
-        if(a.isDestroyed())return;
+        if(a.isDestroyed() || catalogue && !a.openCatalogue.enabled())return;
         if(result!=null){cache.put(address,result);if(address.equals(view.getTag())){view.setImageBitmap(result);empty.setVisibility(View.GONE);}}
         else if(address.equals(view.getTag()))empty.setText("Artwork\nunavailable");
       });

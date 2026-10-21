@@ -160,7 +160,58 @@ INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=CAPTURE v4-08-portrait-dashboard
 
 INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_RESULT: passed=40
+INSTRUMENTATION_STATUS: stream=PASS public show parser preserves missing fields and source identity
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS anime alone never qualifies for the children collection
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS new episodes require actual source schedule date
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS new film parser rejects future dates duplicates and unlabeled entities
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS movie search safely quotes input and uses actual language mapping
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS catalogue image URLs reject cleartext credentials and spoofed hosts
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS Commons artwork requires a permitted licence and source attribution
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS network rates use actual deltas and elapsed time
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS unsupported and reset traffic counters never become fabricated zero readings
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS networking off blocks catalogue and artwork work including resolved credits
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS public catalogue fetch runs through asynchronous transport
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS successful fixture response caches actual parsed records without another request
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS failed refresh retains cached metadata with an explicit stale error
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS stale source state is visible and failure retries are bounded
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS real details controls persist public metadata without a fake Watch action
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS provider fallback explains app-only launch and handles missing apps
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS catalogue search submits through actual native controls
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: passed=57
 INSTRUMENTATION_RESULT: stream=PASS home sample labels and navigation
 PASS catalogue content, language and provider filters
 PASS Kids age selection updates sample recommendations
@@ -201,7 +252,24 @@ PASS imported file is playable, not a placeholder
 PASS imported content playback duration is real
 PASS local audio continues while emulator display is off
 PASS screen wakes and local playback remains controllable
+PASS public show parser preserves missing fields and source identity
+PASS anime alone never qualifies for the children collection
+PASS new episodes require actual source schedule date
+PASS new film parser rejects future dates duplicates and unlabeled entities
+PASS movie search safely quotes input and uses actual language mapping
+PASS catalogue image URLs reject cleartext credentials and spoofed hosts
+PASS Commons artwork requires a permitted licence and source attribution
+PASS network rates use actual deltas and elapsed time
+PASS unsupported and reset traffic counters never become fabricated zero readings
+PASS networking off blocks catalogue and artwork work including resolved credits
+PASS public catalogue fetch runs through asynchronous transport
+PASS successful fixture response caches actual parsed records without another request
+PASS failed refresh retains cached metadata with an explicit stale error
+PASS stale source state is visible and failure retries are bounded
+PASS real details controls persist public metadata without a fake Watch action
+PASS provider fallback explains app-only launch and handles missing apps
+PASS catalogue search submits through actual native controls
 
-40 checks passed
+57 checks passed
 
 INSTRUMENTATION_CODE: -1

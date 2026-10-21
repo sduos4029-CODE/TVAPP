@@ -1,4 +1,4 @@
-# Installation block — Flow TV 0.4.1
+# Installation block — Flow TV 0.4.2
 
 The user reported “App blocked to protect your device … This app can request access to sensitive data … identity theft or financial fraud” **while installing** the 0.4.0 APK, on a phone using Prime Video, JioHotstar and Airtel Xstream.
 
@@ -21,3 +21,7 @@ Download the new versioned APK linked in README; attempt a normal update with Pl
 The Android 11 test emulator has no Play Protect. Build/signature checks, installed-package manifest inspection and functional tests cannot certify that Google will accept the APK on the user’s phone. No Google approval or malware verdict is claimed. The debug APK is not distributed through a reviewed Play test track.
 
 If the new APK is also blocked, stop installation and retain the exact warning and version. The supported next route is developer review/appeal through the link in Google’s help or distribution through a properly configured Play testing track, with the owner’s developer account. Neither submission has been performed here.
+
+## 0.4.2 catalogue update
+
+The public-metadata integration preserves the removal above. No notification/accessibility service, Bluetooth runtime grant, microphone, SMS or broad package-list permission was added. HTTPS system trust and narrow package declarations were added. The packaged permission audit accompanies the APK. Play Protect acceptance remains unverified.

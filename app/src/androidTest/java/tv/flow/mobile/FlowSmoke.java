@@ -213,14 +213,14 @@ public class FlowSmoke extends Instrumentation {
       }
       app.navigate("Home");
       check(contains(app.content, "Favourite apps"), "Real app row absent");
-      check(contains(app.content, "From your TV apps"), "Provider discovery absent");
+      check(contains(app.content, "Film discovery"), "Provider discovery absent");
       check(app.player == null, "Sample player created in production mode");
     });
     test("content tabs never substitute installed apps or fictional samples", () -> {
       for(String page:new String[]{"Movies","Shows","New","Kids"}){
         app.navigate(page);
         check(app.sharedContent.forPage(page).isEmpty(),"Unexpected shared TV feed on phone emulator");
-        check(contains(app.content,"Your apps do not share this catalogue"),"Unavailable feed not explained in "+page);
+        check(contains(app.content,"Catalogue networking is turned off"),"Unavailable public source not explained in "+page);
         check(!contains(app.content,"Recently installed apps"),"Installed-app cards leaked into content tab");
         check(!contains(app.content,"Find on YouTube"),"Generic trailer search substituted for a catalogue");
       }
@@ -505,7 +505,7 @@ public class FlowSmoke extends Instrumentation {
     Bundle out = new Bundle();
     try {
       if(options!=null && "true".equals(options.getString("screensOnly"))){
-        getTargetContext().getSharedPreferences("flow",0).edit().putBoolean("designDemo",false).putInt("realTabsVersion",4).putBoolean("remote",false).putBoolean("preview",true).commit();
+        getTargetContext().getSharedPreferences("flow",0).edit().putBoolean("catalogueEnabled",true).putBoolean("designDemo",false).putInt("realTabsVersion",4).putBoolean("remote",false).putBoolean("preview",true).commit();
         app=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         waitForIdleSync();
         screenshot("v4-01-dashboard",()->app.navigate("Dashboard"));
@@ -514,7 +514,7 @@ public class FlowSmoke extends Instrumentation {
         screenshot("v4-04-shows",()->app.navigate("Shows"));
         screenshot("v4-05-new",()->app.navigate("New"));
         screenshot("v4-06-kids",()->app.navigate("Kids"));
-        screenshot("v4-07-sources",()->{app.navigate("Movies");new SharedContentScreen(app,app.design).sources();});
+        screenshot("v4-07-sources",()->{app.navigate("Movies");new CatalogueScreen(app,app.design).sources();});
         out.putString("stream","7 screen captures completed. Visual review, not functional test results.");finish(Activity.RESULT_OK,out);return;
       }
       Intent i =
@@ -527,6 +527,7 @@ public class FlowSmoke extends Instrumentation {
           .putInt("visualVersion", 2)
           .putInt("realTabsVersion", 4)
           .putBoolean("designDemo", true)
+          .putBoolean("catalogueEnabled", false)
           .putBoolean("preview", true)
           .putBoolean("remote", true)
           .commit();
@@ -760,6 +761,7 @@ public class FlowSmoke extends Instrumentation {
             check(!app.resumed, "Ticker still enabled");
           });
       runLive(i);
+      CatalogueChecks.run(this);
       runOnMainSync(() -> {if(app.localAudio!=null)app.localAudio.stopPlayback();});
       out.putString("stream", report + "\n" + passed + " checks passed\n");
       out.putInt("passed", passed);

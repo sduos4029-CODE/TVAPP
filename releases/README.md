@@ -1,27 +1,27 @@
-# Flow TV 0.4.1
+# Flow TV 0.4.2
 
-[Download debug APK](Flow-TV-v0.4.1-debug.apk) · [Actual screenshots](screenshots-v0.4.1) · [Source](../app/src) · [App-source limits](../CONNECTED_APPS.md) · [Validation](../VALIDATION.md)
+[Download debug APK](Flow-TV-v0.4.2-debug.apk) · [Actual APK screenshots](screenshots-v0.4.2) · [Source](../app/src) · [Validation](../VALIDATION.md) · [Supplied-code review](../IMPORT_REVIEW.md)
 
-Android 8+. Install over the earlier version; package and signing certificate are unchanged. Use this versioned file to avoid a cached older download. `Flow-TV-debug.apk` aliases this build.
+Android 8+. VersionCode 6, target SDK 35. Install over 0.4.1 when the signing certificate matches; the certificate used here is unchanged. Keep Play Protect enabled. Acceptance on a physical phone remains unverified.
 
-## Installation update
+## Implemented
 
-After a reported Play Protect installation block, the notification-listener service and all external media-session access were removed. Flow no longer requests notification access or offers YouTube controls. YouTube search/open stays in the official app; local dot-matrix playback remains functional. **Play Protect acceptance is unverified; keep it enabled.** See [installation analysis](../INSTALLATION.md).
+- Supplied public-catalogue approach adapted to the existing native Java application: Wikidata film metadata, TVmaze series directory/search and dated episode schedule; connected Home/Movies/Shows/New/Kids, native title search and local My List.
+- Honest source/date/language attribution, source information links and explicitly app-only provider fallback. No unsupported Watch action or private-account import.
+- Error/loading states, bounded caching, stale-data labels, source networking controls and metadata/artwork attribution.
+- The supplied Minimal Glass palette with rounded Dashboard cards, actual RAM/storage rings and traffic rates derived from real counters.
+- Preserved installed app icons/launches/reordering, touch/D-pad/on-screen remote, compact settings and functional local dot-matrix audio.
 
-## Preserved
+## Verification boundary
 
-- Rounded Minimal Glass widgets: larger radii, circular RAM/storage gauges, icon wells and matching focus outlines. All measurements are actual installed-device readings.
-- Movies, Shows, New and Kids no longer reuse installed-provider/app lists or generic trailer searches. Each uses only matching programme records shared through Android TV, where the OS permits access.
-- New requires the source's explicit NEW flag. Kids requires published family/kids metadata. Unavailable data is explained rather than filled with invented titles.
-- Shared-title My list and global search remain separate from saved YouTube links. The public fictional sample-mode switch was removed and its previous preference is cleared during upgrade.
-- Local dot-matrix audio, installed apps, remote/touch controls and compact settings remain.
+**This environment blocks TVmaze and Wikidata through its network policy. No successful live catalogue connection is claimed.** Instrumentation fixtures test parsing and control behavior; they do not establish live source content, coverage or provider access. Final screenshots contain no injected successful catalogue rows. Test actual source retrieval on the phone’s own network. See [source limits](../CONNECTED_APPS.md).
 
-## Critical limit
+Prime Video, JioHotstar and Airtel Xstream logins remain private. No verified India streaming-availability feed, subscription detection, provider-added history, exact-title link, certified kids rating or YouTube playback control is implemented. Notification-listener access remains removed. Actual realme Picture Off/remote behavior and YouTube screen-off playback remain unverified.
 
-**Logging in to another app does not give Flow that app's private catalogue or session.** Android TV may expose a limited shared feed, which some firmware restricts. Phones normally do not expose it. Actual logged-in TV feed access is unverified here; no full Netflix/Prime/Hotstar catalogue integration is claimed. The user is testing on a phone signed into Prime Video, JioHotstar and Airtel Xstream; those private mobile catalogues are not exposed to Flow.
-
-| Actual rounded Dashboard | Honest phone Movies state |
+| Rounded phone-data Dashboard | Actual catalogue/error state |
 | --- | --- |
-| ![Dashboard](screenshots-v0.4.1/01-dashboard.png) | ![Movies](screenshots-v0.4.1/03-movies.png) |
+| ![Dashboard](screenshots-v0.4.2/01-dashboard.png) | ![Movies](screenshots-v0.4.2/03-movies.png) |
 
-[Checksums](SHA256SUMS.txt). Historical screenshots in other folders belong to older versions and do not establish live provider availability. YouTube Hide Video, YouTube Screen Off and realme Picture Off remain unverified/unavailable in Flow as described in the feasibility report.
+[Checksums](SHA256SUMS.txt) · [Permission audit](validation/permission-audit.json) · [Installation warning report](../INSTALLATION.md)
+
+Versioned older APKs/screenshots remain historical. `Flow-TV-debug.apk` aliases this release.

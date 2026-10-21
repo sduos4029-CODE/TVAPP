@@ -1,54 +1,52 @@
-# Flow TV 0.4.1 — validation
+# Flow TV 0.4.2 — validation
 
-## Build
+## Build and package
 
-The main debug APK, instrumentation APK and Android lint checks passed with JDK 21, Gradle 8.10.2 and Android SDK/build-tools 35. Lint: **0 errors, 28 warnings**, including prototype English strings, RTL/resource presentation and foreground-service disclosure guidance. APK Signature Scheme v2 verification passed.
+JDK 21, Gradle 8.10.2, Android SDK/build-tools 35. Main/debug instrumentation APK builds and Android lint passed: **0 errors, 33 warnings**. Warnings concern English UI strings, RTL/resource presentation, vector/resource configuration and the existing artwork-loader InputStream alias (the stream is closed by try-with-resources). APK Signature Scheme v2 verification passed.
 
-Package `tv.flow.mobile`, versionCode 5 / versionName 0.4.1, minSdk 26 (Android 8), targetSdk 35. The debug signing certificate matches the earlier published APKs, permitting an update that retains local preferences. The public sample switch was removed and the earlier sample preference is cleared during version migration.
+Package `tv.flow.mobile`; versionCode 6 / versionName 0.4.2; minimum Android 8/API 26, target SDK 35. Existing debug signing certificate retained. Network trust uses system certificates and disables cleartext; no user CA or certificate-verification bypass was added.
 
-[Raw build/smoke output and documentation retrieval evidence](releases/validation) accompany the release. Tests execute Android 11 / API 30 x86_64 on a software phone emulator; this is not a claim that every supported OS/device was tested.
+## Executed: 57 Android 11 emulator checks
 
-## 40 phone-emulator checks
+The final raw result reports **57 checks passed**, `passed=57` and `INSTRUMENTATION_CODE: -1`, without FAIL output. Android 11/API 30 x86_64 software emulator; no physical phone/realme TV or signed-in streaming app is attached.
 
-The final raw result reports `passed=40`, `40 checks passed`, and `INSTRUMENTATION_CODE: -1`, without FAIL/crash output. Adb exit status alone is insufficient.
+- **40 existing checks retained/updated:** test-only legacy navigation/filter layouts, real device data, drawer/Back/focus, actual package icons/launches/recent-app persistence, favourites/remote actions, shared-TV metadata classification and saved-state behavior, official YouTube search/link validation and saved links, removal of sensitive listener/access prompts, local-only media controls, actual audio decoding/import/metadata/duration/seek/queue/search/pause, black pixels/dismissal, and local playback through emulator display sleep/wake. Default tab tests now expect public source/offline states, not the earlier unsupported shared-phone catalogue.
+- **17 new catalogue/telemetry checks:** missing/null field handling; actual source/type identity; anime excluded from children-only classification; episode schedule dates; future/duplicate/unlabelled film rejection; earliest-release/search escaping/language mapping; source image URL validation; separate Commons licence/credit requirements; real byte/time rate calculations and counter-reset/unsupported handling; asynchronous transport; fresh memory/disk cache hits; explicit stale-cache errors and retry cooldown; persistent watchlist through actual details buttons; no fabricated Watch action; provider app-only fallback; search wired through native controls; and networking-off guards for metadata and resolved/queued artwork.
 
-- **13 retained test-only sample checks:** earlier navigation/filter/watchlist behavior, actual hardware APIs, drawer focus and Back, real bundled audio playback/search/seek/queue, favourites, injected touch on the on-screen remote and pausing prototype audio/polling in the background. The sample preference is set explicitly by instrumentation; this mode has no public settings entry.
-- **24 device/listening checks, updated for 0.4.1:** absence of fabricated content by default, real package icons/launches, real search hand-off URI and remote keyboard, strict YouTube URL validation, saved link persistence, truthful missing-session controls, actual hardware data, official-app-only explanation, recently opened app persistence, absence of notification/accessibility listener bindings and sensitive collection permissions, local-only media control, foreground local audio, actual decoding/duration/metadata/seek/queue/pause, local search, real content-URI import, black pixels and touch/Back dismissal, and local playback through emulator sleep/wake.
-- **3 new content regressions:** Movies/Shows/New/Kids never substitute installed-app grids or generic trailer searches; only explicit programme media types/NEW/family genre flags qualify; shared-title My list saves/removes through its actual details controls, updates immediately and remains separate from YouTube links.
+Catalogue tests use **clearly synthetic instrumentation fixtures and an injected transport**, not live API responses. Fixture titles, lists and cache files are removed afterward. Their success does not establish a working TVmaze/Wikidata connection, actual streaming availability or entitlement. Production source networking is disabled during deterministic functional tests. Screenshots-only mode subsequently enables actual requests without injecting successful records.
 
-The new classification/watchlist checks use clearly synthetic instrumentation records, not a fetched provider catalogue. Those records and their saved state are removed before production capture. They verify type separation and persistence, not account connectivity. The default phone tests correctly observe no shared TV feed. No tests inject a successful Netflix/Prime/Hotstar connection into production screenshots.
+Local audio uses original bundled WAVs and an app-owned MediaStore test file that is deleted afterward. During emulator sleep, PowerManager reports noninteractive while decoding position advances; after wake the local session remains controllable. This checks virtual playback state/decoding, not physical acoustic output or YouTube/TV Picture Off.
 
-Local audio tests use original bundled WAVs and an app-owned MediaStore content-URI fixture that is deleted afterward. During display sleep, PowerManager reports noninteractive, the activity stops polling, MediaPlayer remains playing and position advances; after wake/unlock it remains controllable. This verifies local decoding/state/progress with a virtual audio sink, not acoustic output, YouTube or TV picture-off.
+## Live network boundary
+
+The selected cloud proxy rejected CONNECT requests to TVmaze API/docs and Wikidata documentation with 403 before HTTPS. **No successful live catalogue fetch was verified.** No blocked-host mirror, alternate egress or fabricated successful result was substituted. Current API shapes/licensing assumptions come from the supplied snippets and known public contracts; current official source documentation could not be retrieved here. Actual source behavior/coverage/rate limits and licensing obligations still need verification on an allowed network before wider distribution.
+
+Real request/parsing, timeout/HTTP/JSON-error paths, source information links and native unavailable states are implemented. The source error handling is tested with fixtures; it is not evidence that the endpoint accepted a production query. The phone's own network may differ from the managed build environment.
 
 ## Visual verification
 
-Actual running-APK captures include rounded landscape and portrait Dashboard layouts, installed apps, Home, Movies/Shows/New/Kids unavailable states, source explanation, saved lists and the preserved dot-matrix audio UI. RAM/storage ring fractions use ActivityManager/StatFs readings. Large rounded slate cards, circular icon wells and matching mint focus outlines replace the previous flatter widgets. Solid backgrounds and static Canvas drawing avoid expensive live blur or decorative animation.
+Final captures come from the running 0.4.2 APK: supplied Minimal Glass palette, rounded landscape/portrait Dashboard, public catalogue loading/unavailable states, source explanation, actual installed apps, separate saved lists and dot-matrix audio. No synthetic successful catalogue rows are used in final release captures. RAM/storage values are actual emulator readings; traffic rates use elapsed counter differences. Black-screen pixels are RGB zero throughout, without widgets; this does not establish panel/backlight power-off.
 
-On this phone emulator, content tabs show an explicit unavailable feed rather than invented titles or app cards. All captured app icons and hardware values are actual emulator data. Artwork placeholders describe missing source data. The black-screen capture is RGB zero throughout and has no widgets; this does not establish physical panel/backlight power-off.
+## Permissions and privacy
 
-## Permissions and data boundaries
+The packaged manifest/Dex audit verifies no notification/accessibility listener binding, external active-session query, microphone/SMS/contacts permission, install-packages permission or QUERY_ALL_PACKAGES declaration. BLUETOOTH_CONNECT was not added because no corresponding device-access feature was implemented. Hardware presence can be shown without claiming paired-device control.
 
-READ_EPG_DATA and the Android TV provider visibility declaration support only OS-permitted shared listings. TV queries request a small explicit projection of public programme fields; private internal provider data is not requested. Filtering honours hidden/non-searchable records. Content observation is stopped while inactive. Artwork loading uses source-published HTTPS/content/resource URIs, bounded reads, reduced-size decoding, 24-card pages and a 6 MB memory cache. It does not send account cookies or authorization headers. INTERNET was added for that artwork; the previous no-network-request description no longer applies.
+Public metadata uses fixed HTTPS hosts, bounded reads, timeouts and no redirects/account credentials. At most 12 cached responses are retained; freshness is 30 minutes and stale data is explicitly labelled. UI pages hold at most 24 catalogue cards. Shared artwork cache is 6 MB with reduced decoding. Commons images require separately resolved permitted licences/credit before display. Source network controls and cache clearing are implemented. No ads, analytics or tracking SDKs were added.
 
-The notification-listener service and external session acquisition were removed in 0.4.1. No ads, tracking SDKs, microphone, SMS, contacts, broad storage or privileged cross-app/account permissions were added. No streaming-app login/session reuse, private database access, scraping, default-home role override or successful provider connection is simulated.
+## Pending or unsupported
 
-## Unverified / blocked
-
-- **Actual TV feed access is unverified.** No physical realme TV or logged-in streaming provider was attached. Firmware can restrict the standard reader, expose only some records or return none. Permission-denied/unsupported TV-table behavior has not been exercised on that hardware. A public API and manifest declaration do not prove cross-app access.
-- Phones generally lack this shared Android TV feed. Existing streaming-app logins do not expose their private catalogues. Full per-provider browsing needs a supported API/partnership; the user identified Prime Video, JioHotstar and Airtel Xstream on a phone. Their private catalogues are not exposed to Flow.
-- Actual programme posters, provider title deep links, app-published NEW flags and complete publisher coverage remain device checks. No full Netflix, Prime Video, JioHotstar, SonyLIV, ZEE5 or YouTube catalogue was accessed.
-- YouTube metadata/actions/queue control are unsupported in Flow 0.4.1 because notification access was removed. Official-app playback/membership/background audio and screen-off playback remain unverified.
-- Play Protect acceptance is unverified. This emulator has no Google Play Protect; successful adb installation/build checks do not establish acceptance on the user’s phone. Keep Play Protect enabled. See INSTALLATION.md.
-- realme RMV2004 Picture Off, continued TV audio, remote wake, standby differences, vendor controls, physical remote long-press/touch drag and TalkBack remain physical-device checks. Black pixels do not power off a backlight.
-
-[CONNECTED_APPS.md](CONNECTED_APPS.md) and [YOUTUBE_FEASIBILITY.md](YOUTUBE_FEASIBILITY.md) distinguish official findings, implemented code and executed verification.
+- Live TVmaze/Wikidata/Commons retrieval, current source terms/licensing, image coverage and real phone connectivity remain unverified due the environment network block.
+- Private Prime Video/JioHotstar/Airtel Xstream catalogue import, subscription/watch-history detection, verified India provider availability, exact-title provider links, provider-added dates, certified kids ratings and trailers are not provided by these integrations. General movie genres beyond the children's collection are not loaded by the current Wikidata projection. TVmaze language filtering applies to its loaded source response; directory slices are not complete recommendations.
+- Actual Android TV shared-feed access, HDMI switching, realme RMV2004 Picture Off, physical remote/drag/accessibility behavior and physical-device wake remain real-TV checks. No privileged vendor integration is claimed.
+- YouTube playback control/metadata/queue/hide-video are unsupported in Flow after notification access removal. Official-app membership/background/display-off behavior remains unverified.
+- Play Protect acceptance is unverified. The test emulator has no Play Protect; build/signature/adb success does not establish Google approval. Keep protection enabled. See INSTALLATION.md.
 
 ## Reproduce
 
-Build with `./scripts/build-cloud.sh` in the prepared environment, or README's SDK instructions. Install both APKs into a disposable API 30 emulator and run:
+Use `./scripts/build-cloud.sh`, or README's SDK instructions. In a disposable emulator install main/test APKs and run:
 
 ```sh
 adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
 ```
 
-The runner resets preferences, uses test-only metadata fixtures, launches Settings, creates/deletes its own audio file and sleeps/wakes the emulator. Do not run it on a personal installation. Optional screenshots are in internal `files/visuals` and can be collected with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
+Tests reset local state and should not run on a personal installation. Screenshots-only mode: `-e screensOnly true`. Retrieve internal captures with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.

@@ -39,7 +39,7 @@ final class LiveFlow {
     return c;
   }
 
-  void home() {new SharedContentScreen(a,d).render();}
+  void home() {new CatalogueScreen(a,d).render();}
 
   ArrayList<MainActivity.AppEntry> providers() {
     ArrayList<MainActivity.AppEntry> list = new ArrayList<>();
@@ -95,8 +95,7 @@ final class LiveFlow {
   }
 
   void catalogue() {
-    if(a.page.equals("My list")){new SharedContentScreen(a,d).saved();return;}
-    new SharedContentScreen(a,d).render();
+    new CatalogueScreen(a,d).render();
   }
   long installTime(String pkg) {
     try { return a.getPackageManager().getPackageInfo(pkg, 0).firstInstallTime; }
@@ -277,7 +276,7 @@ final class LiveFlow {
     meta.setPadding(d.u(13), d.u(8), 0, 0);
     title = dot("YOUR MUSIC.\nON YOUTUBE.", 29, ivory);
     title.setMaxLines(2); title.setEllipsize(TextUtils.TruncateAt.END);
-    artist = d.label("Open YouTube to start a real session.", 13, 0xffb8bbb8);
+    artist = d.label("Playback stays in the official YouTube app.", 13, 0xffb8bbb8);
     meta.addView(title); meta.addView(artist);
     sessionStatus = dot("NOT CONNECTED", 12, FlowDesign.RED); meta.addView(sessionStatus);
     Button open = d.button(localView ? "⌕  Library / Search" : "▶  Show video in YouTube", () -> { if(localView) localSearch();else openYouTubeApp(); });
@@ -479,7 +478,7 @@ final class LiveFlow {
     YouTubeMedia media = a.youtube;
     boolean connected = media.active() != null;
     title.setText(media.text(MediaMetadata.METADATA_KEY_TITLE, localView?"YOUR LOCAL\nLIBRARY.":"YOUR MUSIC.\nON YOUTUBE."));
-    artist.setText(media.text(MediaMetadata.METADATA_KEY_ARTIST, localView?"Choose a file or a bundled sample.":connected ? "Artist/channel not exposed by YouTube" : "Open YouTube to start a real session."));
+    artist.setText(media.text(MediaMetadata.METADATA_KEY_ARTIST, localView?"Choose a file or a bundled sample.":connected ? "Artist/channel not exposed by YouTube" : "Playback stays in the official YouTube app."));
     PlaybackState state = media.state();
     boolean playing = state != null && state.getState() == PlaybackState.STATE_PLAYING;
     sessionStatus.setText(localView ? (playing?"NOW PLAYING • LOCAL":state!=null && state.getState()==PlaybackState.STATE_ERROR?"FILE UNAVAILABLE":state!=null && state.getState()==PlaybackState.STATE_BUFFERING?"LOADING LOCAL AUDIO":"LOCAL AUDIO • READY") : "YOUTUBE: USE OFFICIAL APP");

@@ -1,7 +1,7 @@
 {
   "review_date": "2026-10-21",
   "timezone": "Asia/Kolkata",
-  "scope": "Official references retrieved and read; current TV contract supports published metadata with proper permissions. No actual logged-in streaming app or physical-TV feed was verified.",
+  "scope": "Retained official YouTube/Android findings; 0.4.2 public-catalogue docs/endpoints are network-blocked and live retrieval is unverified.",
   "documents": [
     {
       "title": "YouTube Premium benefits",
@@ -98,12 +98,33 @@
   "unresolved": [
     "No RMV2004-specific picture-off control verified",
     "No actual YouTube playback exercised",
-    "User phone Play Protect acceptance and exact installation-block classifier are unverified"
+    "User phone Play Protect acceptance and exact installation-block classifier are unverified",
+    "Live public catalogue retrieval and current source terms could not be verified in this network environment"
   ],
   "other_requests": [
     {
       "url": "https://www.realme.com/in/realme-tv/specs",
       "http_status": 404
+    }
+  ],
+  "catalogue_requests": [
+    {
+      "url": "https://www.tvmaze.com/api",
+      "origin_http_status": null,
+      "connect_proxy_status": 403,
+      "result": "Denied before HTTPS; not a successful source response"
+    },
+    {
+      "url": "https://api.tvmaze.com/search/shows?q=Panchayat",
+      "origin_http_status": null,
+      "connect_proxy_status": 403,
+      "result": "Denied before HTTPS; not a successful source response"
+    },
+    {
+      "url": "https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service",
+      "origin_http_status": null,
+      "connect_proxy_status": 403,
+      "result": "Denied before HTTPS; not a successful source response"
     }
   ]
 }

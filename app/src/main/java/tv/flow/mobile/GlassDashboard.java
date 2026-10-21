@@ -19,7 +19,7 @@ final class GlassDashboard {
   final Map<String,TextView> values=new LinkedHashMap<>();
   final Map<String,TextView> captions=new HashMap<>();
   final Map<String,Ring> rings=new HashMap<>();
-  final int slate=0xff15263b, rim=0xff304457;
+  final int slate=0xff141c2e, rim=0xff304457;
   GlassDashboard(MainActivity activity,FlowDesign design){a=activity;d=design;}
 
   void render(){
@@ -42,7 +42,7 @@ final class GlassDashboard {
     LinearLayout.LayoutParams pl=new LinearLayout.LayoutParams(-1,d.u(a.landscape()?88:117));
     pl.setMargins(d.u(5),d.u(7),d.u(5),d.u(4));a.content.addView(ports,pl);
     LinearLayout footer=d.row();
-    TextView model=d.label(Build.MANUFACTURER+" "+Build.MODEL+"   ·   Android "+Build.VERSION.RELEASE,11,FlowDesign.MUTED);
+    TextView model=d.label(Build.MANUFACTURER+" "+Build.MODEL+"   ·   Android "+Build.VERSION.RELEASE+"   ·   Flow "+a.appVersion(),11,FlowDesign.MUTED);
     footer.addView(model,new LinearLayout.LayoutParams(0,-2,1));
     TextView chip=d.label(a.tv()?"TV readings":"Phone readings",10,FlowDesign.LAV);
     chip.setBackground(d.border(0xff202a43,0xff414365,14,1));
@@ -121,7 +121,11 @@ final class GlassDashboard {
           String cpu=Build.VERSION.SDK_INT>=31 && !Build.SOC_MODEL.equalsIgnoreCase("unknown")?Build.SOC_MODEL:Build.HARDWARE;
           set(key,cpu,Build.SUPPORTED_ABIS[0]+"\n"+Runtime.getRuntime().availableProcessors()+" available cores");break;
         }
-        case "Network":set(key,"↓ "+a.bytes(TrafficStats.getTotalRxBytes())+"   ↑ "+a.bytes(TrafficStats.getTotalTxBytes()),"Received / sent\nActual totals since device boot");break;
+        case "Network":{
+          TrafficReading r=a.trafficReading;r.sample(TrafficStats.getTotalRxBytes(),TrafficStats.getTotalTxBytes(),SystemClock.elapsedRealtime());
+          if(r.rx<0 || r.tx<0)throw new IllegalStateException();
+          set(key,r.rxPerSecond<0?"Measuring traffic…":"↓ "+a.bytes(r.rxPerSecond)+"/s   ↑ "+a.bytes(r.txPerSecond)+"/s","Totals since boot: ↓ "+a.bytes(r.rx)+" ↑ "+a.bytes(r.tx)+"\nAll supported interfaces, not Wi-Fi-only");break;
+        }
         case "Ports & Inputs":set(key,a.metric(key,false).replace('\n',' ').replace("TV input controls: "," · TV: "),"");values.get(key).setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,d.u(12));break;
         case "Bluetooth":set(key,"Hardware present","Connection details not requested\nOpen Android settings to pair");break;
         case "Wi-Fi":{

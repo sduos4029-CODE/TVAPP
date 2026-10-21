@@ -21,19 +21,25 @@ import java.io.*;
 import java.util.*;
 import org.json.*;
 
-/** Local-first mobile/TV prototype. No catalogue service or privileged system access. */
+/** Native phone/TV discovery, local playback and actual device readings. */
 public class MainActivity extends Activity {
-  static final int BG = 0xff03111f,
-      CARD = 0xff15263b,
-      TEXT = 0xffeef2f8,
-      MUTED = 0xffa5b2c6,
-      MINT = 0xff7df3d3,
-      LAV = 0xffb9a6fa,
-      LINE = 0xff344258;
+  static final int BG = 0xff0a0e1a,
+      CARD = 0xff141c2e,
+      TEXT = 0xfff4f7ff,
+      MUTED = 0xff94a3b8,
+      MINT = 0xff3ee6b0,
+      LAV = 0xffb497ff,
+      LINE = 0xff283552;
   float designScale = 1;
   FlowDesign design;
   LiveFlow live;
   SharedTvContent sharedContent;
+  OpenCatalogue openCatalogue;
+  CatalogueImages catalogueImages;
+  final TrafficReading trafficReading=new TrafficReading();
+  String catalogueKind="movie",catalogueQuery="",savedKind="all";
+  int catalogueIndex;
+  boolean cataloguePending;
   int sharedPage;
   SharedArtwork sharedArtwork;
   YouTubeMedia youtube;
@@ -497,6 +503,8 @@ public class MainActivity extends Activity {
     youtube = new YouTubeMedia(this);
     sharedContent = new SharedTvContent(this);
     sharedArtwork = new SharedArtwork(this);
+    openCatalogue=new OpenCatalogue(this);
+    catalogueImages=new CatalogueImages(this);
     if(prefs.getInt("realTabsVersion",0)<4){prefs.edit().remove("designDemo").putInt("realTabsVersion",4).apply();}
     localBound=bindService(new Intent(this,LocalAudioService.class),localConnection,Context.BIND_AUTO_CREATE);
     IntentFilter packages = new IntentFilter();
@@ -531,6 +539,7 @@ public class MainActivity extends Activity {
             "com.amazon.avod.thirdpartyclient",
             "com.amazon.amazonvideo.livingroom",
             "in.startv.hotstar",
+            "in.airtel.tv",
             "org.videolan.vlc",
             "com.android.vending"
           }) {
@@ -580,6 +589,7 @@ public class MainActivity extends Activity {
     if (player != null && player.isPlaying()) player.pause();
     youtube.stop();
     sharedContent.stopObserving();
+    trafficReading.reset();
     super.onPause();
   }
 
@@ -591,6 +601,8 @@ public class MainActivity extends Activity {
     youtube.stop();
     sharedContent.close();
     sharedArtwork.close();
+    openCatalogue.close();
+    catalogueImages.close();
     if(localAudio!=null) localAudio.changed=null;
     if(localBound) unbindService(localConnection);
     super.onDestroy();
@@ -751,7 +763,7 @@ public class MainActivity extends Activity {
     cancelMove();
     if ((s.equals("Movies") && type.equals("Show")) || (s.equals("Shows") && type.equals("Movie")))
       type = "All";
-    if(!page.equals(s))sharedPage=0;
+    if(!page.equals(s)){sharedPage=0;catalogueIndex=0;trafficReading.reset();}
     page = s;
     sharedContent.startObserving();
     build();
@@ -884,6 +896,7 @@ public class MainActivity extends Activity {
       content.setDescendantFocusability(android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS);
       content.setAlpha(1f);
       content.requestFocus();
+      if(cataloguePending)handler.post(()->{if(drawer==null && resumed && cataloguePending){cataloguePending=false;build();}});
     }
   }
 
@@ -1033,7 +1046,7 @@ public class MainActivity extends Activity {
   }
 
   void openGlobalSearch() {
-    if (!demo()) { new SharedContentScreen(this,design).search(); return; }
+    if (!demo()) { new CatalogueScreen(this,design).search(); return; }
     LinearLayout p = panel("Search");
     EditText q = new EditText(this);
     q.setSingleLine(true);
@@ -1176,7 +1189,7 @@ public class MainActivity extends Activity {
               + " · API "
               + Build.VERSION.SDK_INT
               + (detailed
-                  ? "\nFlow TV 0.4.1 · "
+                  ? "\nFlow TV "+appVersion()+" · "
                       + (tv() ? "TV" : "Phone/tablet")
                       + "\nBrand: "
                       + Build.BRAND
@@ -1190,6 +1203,8 @@ public class MainActivity extends Activity {
     }
     return "Unavailable";
   }
+
+  String appVersion(){try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){return "Unavailable";}}
 
   void detail(String key) {
     design.detail(key);

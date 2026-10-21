@@ -25,13 +25,13 @@ final class FlowDesign {
   GlassDashboard glassDashboard;
   static Bitmap atlas, heroes, kidsArt;
   static Typeface dots;
-  static final int BG = 0xff03111f,
-      CARD = 0xff15263b,
-      LINE = 0xff30465b,
-      TEXT = 0xfff4f7fc,
-      MUTED = 0xffa8bad0,
-      MINT = 0xff7df3d3,
-      LAV = 0xffb9a6fa,
+  static final int BG = 0xff0a0e1a,
+      CARD = 0xff141c2e,
+      LINE = 0xff283552,
+      TEXT = 0xfff4f7ff,
+      MUTED = 0xff94a3b8,
+      MINT = 0xff3ee6b0,
+      LAV = 0xffb497ff,
       RED = 0xffff3347;
   final HashMap<String, ProgressBar> bars = new HashMap<>();
   final HashMap<String, TextView> readings = new HashMap<>();
@@ -1236,7 +1236,7 @@ final class FlowDesign {
 
   void settings() {
     LinearLayout p = panel("Quick settings");
-    p.addView(button("Connected app content",()->new SharedContentScreen(a,this).sources()));
+    p.addView(button("Catalogue sources",()->new CatalogueScreen(a,this).sources()));
     for (String[] item :
         new String[][] {
           {"wifi", "Network"},
@@ -1313,7 +1313,7 @@ final class FlowDesign {
         new String[][] {
           {"Ads & trackers", "None in Flow TV"},
           {"Microphone", "Not requested • voice unavailable"},
-          {"Recommendations", a.demo() ? "Test-only samples" : "OS-shared TV programme cards"},
+          {"Recommendations", a.demo() ? "Test-only samples" : "Public metadata · not personal history"},
           {"Full app catalogues", "Private · not exposed by login"},
           {"Notification access", "Not requested · no cross-app media access"},
           {"Background work", "Flow polling stops when inactive"}
@@ -1346,6 +1346,7 @@ final class FlowDesign {
                     "Deletes local favourites, lists, audio imports and preferences. Stops local playback."
                         + " This cannot be undone.",
                     () -> {
+                      a.openCatalogue.clear();a.sharedArtwork.cache.evictAll();a.catalogueImages.credits.clear();
                       if(a.localAudio!=null)a.localAudio.stopPlayback();
                       for(android.content.UriPermission permission:a.getContentResolver().getPersistedUriPermissions()) {
                         try{a.getContentResolver().releasePersistableUriPermission(permission.getUri(),Intent.FLAG_GRANT_READ_URI_PERMISSION);}catch(SecurityException ignored){}

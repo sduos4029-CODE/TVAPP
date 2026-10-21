@@ -1,33 +1,29 @@
-# Existing logged-in apps — what Flow can actually read
+# Public catalogue versus signed-in apps
 
-Flow cannot reuse a streaming app's sign-in merely because it is installed. Android isolates app storage, account/session tokens and private catalogues. No password, cookie, private database, accessibility scraping or hidden provider endpoint is used.
+The user tests on an Android phone signed into **Prime Video, JioHotstar and Airtel Xstream**. Android isolates those apps' private catalogues, credentials, account sessions and viewing history. Flow cannot read them merely because the apps are installed or signed in.
 
-## Implemented route
+## New public-metadata route
 
-Android TV defines public programme metadata tables:
+The supplied code proposes two keyless public sources. Version 0.4.2 wires those sources into the native UI:
 
-- [TvContract.WatchNextPrograms](https://developer.android.com/reference/android/media/tv/TvContract.WatchNextPrograms)
-- [TvContract.PreviewPrograms](https://developer.android.com/reference/android/media/tv/TvContract.PreviewPrograms)
+| Source | Requests | Meaning / limits |
+| --- | --- | --- |
+| Wikidata | Public SPARQL film query; selected original language, optional safely quoted title match and children's-film genre | Structured film metadata, source release dates and optional source images. Coverage is incomplete. It supplies no subscription or current India provider availability. |
+| TVmaze | `/shows?page=…`, `/search/shows?q=…`, `/schedule/web?date=…` | Global series directory/search and scheduled episode data. A broadcaster/original web channel is not a current regional streaming-availability claim. |
+| Wikimedia Commons | MediaWiki `imageinfo` for a Wikidata source image | Only resolved permitted licence/source credits are displayed; missing or unverified art remains unavailable. Images are not necessarily posters. |
 
-The current WatchNextPrograms reference was retrieved and reviewed on 21 October 2026. It documents programme types, NEW/CONTINUE flags, canonical genres, poster/title-link fields and browsable/searchable constraints. It explicitly requires proper permission for reading searchable records; this is not unrestricted access to every app's data.
+**This environment's proxy blocks TVmaze, Wikidata and their documentation endpoints. No successful live catalogue response has been verified here.** Fixture tests are not provider connectivity evidence. The app contains real HTTPS requests and handles errors; the phone's own connectivity and source behavior need testing.
 
-Flow declares the standard READ_EPG_DATA permission and provider visibility, then queries these OS tables only where present. The TV firmware/OS can deny access or filter records. Flow honours non-browsable/non-searchable records, uses only records from other packages, and does not request a privileged bypass or force a home-launcher role. Queries run off the main thread. Change observation is active only while Flow is visible on a content page.
+No API key is required for this route; the pasted TMDB BuildConfig key was unused and was not added. A future TMDB or provider integration would need separate implementation, configuration and licensing checks.
 
-Movies uses only TYPE_MOVIE. Shows uses TV series/season/episode types. New uses only explicit WATCH_NEXT_TYPE_NEW. Kids requires the canonical FAMILY_KIDS genre and does not claim certified ratings. Missing fields are not invented. My list stores the published metadata locally after a user saves a title. A programme link is narrowed to ACTION_VIEW in the source package; if it cannot resolve, Flow opens that app and explains that no supported title link was available.
+## What buttons actually do
 
-Artwork is loaded only from source-published HTTPS/content/resource URIs, with size limits, 24-card pages, reduced-size decoding and a bounded memory cache. Android enforces content-URI access. No account cookies or authentication headers are attached. Missing artwork is labelled, not replaced with fictional movie art.
+A title's source page is an information page, not playback. **Open a streaming app** uses an installed app's real launch entry, explicitly without an exact-title guarantee. That app retains login/subscription checks. No deep link, trailer, entitlement, watch history or provider availability is invented. Movie/show watchlists store selected metadata locally; saved YouTube links remain separate.
 
-## Limits
+Current sources cannot support the requested verified India provider filters. Those controls are not offered. They also cannot verify provider-added dates, personalised recommendations, certified kids age ratings or playback progress. New films uses earliest source release dates within 90 days; New episodes uses source-scheduled dates. Kids is a genre collection, not a safety certification or device-wide lock.
 
-- This is a limited feed of app-published recommendations/Watch Next cards, not a full streaming catalogue, subscription check or import of private viewing history.
-- Android phones generally do not expose this Android TV feed. Signing in to an installed phone app does not populate these tables.
-- Some TV firmware may restrict third-party readers or expose no records. A declared normal permission does not override provider restrictions.
-- No physical realme TV or logged-in streaming app was attached here. Actual readable records, publisher coverage, poster access and title deep links still need device testing.
-- The user is testing on a phone with Prime Video, JioHotstar and Airtel Xstream already signed in. Those mobile logins do not expose catalogues to Flow. Flow can launch installed apps using their actual icons; it cannot import these private catalogues. No authorized provider API has been configured.
-- A separate authorized metadata catalogue could supply real titles/posters, but it would not inherit the installed app's login, watch history or entitlement. It has not been substituted for the requested existing-app source.
+## Optional Android TV route
 
-The Movies/Shows/New/Kids screens therefore show an honest unavailable/empty state when the OS supplies no matching data. App-launch tiles remain in Home/All Apps; they are not passed off as movies, shows or new releases. The public fictional Design Preview switch was removed and its previous preference is cleared on upgrade.
+The earlier standard TvContract Watch Next / Preview reader remains for real TV devices. It reads only OS-permitted public fields, honours browsable/searchable flags and avoids private account data. A readable app-published card remains a limited recommendation, not the full catalogue. Firmware can restrict access; no physical realme TV/provider feed was verified. A phone normally lacks that shared TV feed.
 
-## Verification boundary
-
-Phone unavailability, tab separation, local watchlist operations and typed filtering are tested. Typed filtering uses synthetic instrumentation fixtures that are not shipped as catalogue data and are removed before screenshot capture. There is no claim that a full Netflix, Prime Video, JioHotstar, SonyLIV, ZEE5 or YouTube catalogue was accessed. Actual provider integration requires its documented API or permitted TV publishing route and device verification.
+No private API scraping, account-cookie extraction, accessibility harvesting, notification listener or privileged permission bypass is used.

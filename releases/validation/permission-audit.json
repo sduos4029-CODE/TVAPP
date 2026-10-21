@@ -1,7 +1,9 @@
 {
-  "version": "0.4.1",
-  "apk_sha256": "53b5a5006047442205a579c287931dce15188e0696031cb789353874c728fda1",
-  "manifest_sensitive_bindings_absent": true,
+  "version": "0.4.2",
+  "version_code": 6,
+  "apk_sha256": "ac3ac6bd3d3582ce587f1054925dad15522027745fbde7bcc9aa36404c665261",
+  "installed_tested_apk_matches": true,
+  "sensitive_bindings_absent": true,
   "external_session_acquisition_absent_in_dex": true,
   "permissions": [
     "package: tv.flow.mobile",
@@ -13,5 +15,6 @@
     "uses-permission: name='android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'",
     "uses-permission: name='android.permission.WAKE_LOCK'"
   ],
-  "play_protect_acceptance": "UNVERIFIED: emulator has no Play Protect; no successful user-phone install established"
+  "play_protect_acceptance": "UNVERIFIED; emulator has no Play Protect",
+  "live_catalogue": "UNVERIFIED; source routes blocked by build environment"
 }
