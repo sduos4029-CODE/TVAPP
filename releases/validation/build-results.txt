@@ -52,7 +52,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:mergeDebugAndroidTestResources UP-TO-DATE
 > Task :app:processDebugAndroidTestManifest UP-TO-DATE
 > Task :app:processDebugAndroidTestResources UP-TO-DATE
-> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
+> Task :app:compileDebugAndroidTestJavaWithJavac
 > Task :app:mergeDebugAndroidTestShaders UP-TO-DATE
 > Task :app:compileDebugAndroidTestShaders NO-SOURCE
 > Task :app:generateDebugAndroidTestAssets UP-TO-DATE
@@ -78,11 +78,11 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:extractProguardFiles UP-TO-DATE
 > Task :app:generateDebugLintReportModel
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:generateDebugUnitTestLintModel
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect UP-TO-DATE
 > Task :app:assembleDebug
-> Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:generateDebugUnitTestLintModel
 > Task :app:lintAnalyzeDebugAndroidTest
 > Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebug
@@ -92,8 +92,8 @@ Wrote HTML report to file:///workspace/TVAPP/app/build/reports/lint-results-debu
 
 > Task :app:lintDebug
 
-BUILD SUCCESSFUL in 14s
-67 actionable tasks: 13 executed, 54 up-to-date
+BUILD SUCCESSFUL in 16s
+67 actionable tasks: 14 executed, 53 up-to-date
 Verifies
 Verified using v1 scheme (JAR signing): false
 Verified using v2 scheme (APK Signature Scheme v2): true

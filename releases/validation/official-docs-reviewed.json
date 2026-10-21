@@ -1,7 +1,7 @@
 {
   "review_date": "2026-10-21",
   "timezone": "Asia/Kolkata",
-  "scope": "Official documentation retrieved and read; not actual YouTube or physical TV playback verification. Initial HTTP policy failures resolved during task.",
+  "scope": "Official references retrieved and read; current TV contract supports published metadata with proper permissions. No actual logged-in streaming app or physical-TV feed was verified.",
   "documents": [
     {
       "title": "YouTube Premium benefits",
@@ -79,6 +79,13 @@
       "http_status": 200,
       "response_bytes": 165913,
       "sha256": "fc3dd7019416a6537d5ad34249d51ff77800a691ab8db92088f4cb9f25d6bd6a"
+    },
+    {
+      "title": "Android TV WatchNext programme contract",
+      "url": "https://developer.android.com/reference/android/media/tv/TvContract.WatchNextPrograms",
+      "http_status": 200,
+      "response_bytes": 2360953,
+      "sha256": "4a3ba02b4cc776fcd8152b073e8b6db3c2400783e984617fc59e5700b0281faa"
     }
   ],
   "unresolved": [

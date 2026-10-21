@@ -22,6 +22,7 @@ import java.util.*;
 final class FlowDesign {
   final MainActivity a;
   TextView audioMeta;
+  GlassDashboard glassDashboard;
   static Bitmap atlas, heroes, kidsArt;
   static Typeface dots;
   static final int BG = 0xff03111f,
@@ -116,6 +117,7 @@ final class FlowDesign {
 
   void focus(View v, Runnable action) {
     v.setFocusable(true);
+    v.setDefaultFocusHighlightEnabled(false);
     v.setClickable(true);
     v.setForeground(outline());
     v.setOnFocusChangeListener(
@@ -1127,48 +1129,8 @@ final class FlowDesign {
   }
 
   void dashboard() {
-    section(a.content, "Dashboard", a.tv() ? "LIVE TV DATA  ·  MINIMAL GLASS" : "LIVE PHONE DATA  ·  MINIMAL GLASS");
-    gap(a.content, 7);
-    ArrayList<String> keys = new ArrayList<>(Arrays.asList("RAM", "Storage", "CPU", "Wi-Fi"));
-    if (a.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
-      keys.add("Bluetooth");
-    if (TrafficStats.getTotalRxBytes() >= 0 && TrafficStats.getTotalTxBytes() >= 0)
-      keys.add("Network");
-    else keys.add("System");
-    int columns = a.landscape() ? 3 : 2;
-    for (int start = 0; start < keys.size(); start += columns) {
-      LinearLayout r = row();
-      for (int j = start; j < Math.min(start + columns, keys.size()); j++) {
-        String key = keys.get(j);
-        LinearLayout tile = metricCard(key);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, u(132), 1);
-        lp.setMargins(u(5), u(5), u(5), u(5));
-        r.addView(tile, lp);
-      }
-      for (int j = r.getChildCount(); j < columns; j++)
-        r.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1));
-      a.content.addView(r);
-    }
-    LinearLayout ports = metricCard("Ports & Inputs");
-    LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(-1, u(90));
-    pp.setMargins(u(5), u(6), u(5), u(7));
-    a.content.addView(ports, pp);
-    LinearLayout footer = row();
-    Button sys =
-        button(
-            "▯  "
-                + Build.MODEL
-                + "   |   Android "
-                + Build.VERSION.RELEASE
-                + "   |   Flow TV 0.3.0",
-            () -> a.detail("System"));
-    footer.addView(sys, new LinearLayout.LayoutParams(0, u(32), 1));
-    TextView live = bold(a.tv() ? "Device readings" : "Phone readings", 11, BG);
-    live.setBackground(solid(LAV, 6));
-    footer.addView(live);
-    a.content.addView(footer);
-    note(a.content, "Tap a card for details • actual device data • unsupported metrics hidden");
-    refreshMetrics();
+    glassDashboard=new GlassDashboard(a,this);
+    glassDashboard.render();
   }
 
   LinearLayout metricCard(String key) {
@@ -1205,6 +1167,7 @@ final class FlowDesign {
   }
 
   void refreshMetrics() {
+    if(glassDashboard!=null){glassDashboard.refresh();return;}
     for (Map.Entry<String, TextView> entry : readings.entrySet()) {
       String key = entry.getKey();
       TextView view = entry.getValue();
@@ -1273,12 +1236,7 @@ final class FlowDesign {
 
   void settings() {
     LinearLayout p = panel("Quick settings");
-    p.addView(button(a.demo() ? "Exit sample design preview" : "Design preview · samples", () -> {
-      a.prefs.edit().putBoolean("designDemo", !a.demo()).apply();
-      if (a.player != null) a.player.pause();
-      if(a.localAudio!=null) a.localAudio.pause();
-      a.navigate("Home");
-    }));
+    p.addView(button("Connected app content",()->new SharedContentScreen(a,this).sources()));
     for (String[] item :
         new String[][] {
           {"wifi", "Network"},
@@ -1355,8 +1313,8 @@ final class FlowDesign {
         new String[][] {
           {"Ads & trackers", "None in Flow TV"},
           {"Microphone", "Not requested • voice unavailable"},
-          {"Recommendations", a.demo() ? "Sample design preview" : "Inside installed providers"},
-          {"Online catalogue", "Not connected"},
+          {"Recommendations", a.demo() ? "Test-only samples" : "OS-shared TV programme cards"},
+          {"Full app catalogues", "Private · not exposed by login"},
           {"Media access", a.youtube.allowed() ? "Enabled in Android settings" : "Optional · not enabled"},
           {"Background work", "Flow polling stops when inactive"}
         }) {

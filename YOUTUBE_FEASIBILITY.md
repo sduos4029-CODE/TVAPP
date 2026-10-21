@@ -1,4 +1,4 @@
-# YouTube listening feasibility — Flow TV 0.3.0
+# YouTube listening feasibility — Flow TV 0.4.0
 
 ## Official documentation reviewed
 
@@ -45,4 +45,4 @@ On the actual TV verify the exact firmware, whether supported Picture Off exists
 
 ## Executed versus pending
 
-[VALIDATION.md](VALIDATION.md) records build/signature checks, 37 emulator checks, real local decoding/queue/seek/import, grant/revocation/filtering and local display-off/wake. No official YouTube installation, paid account, physical phone or realme TV was attached. Real YouTube metadata/actions/background audio, source queue/Show video, vendor picture-off and real-TV wake behavior remain unverified. These are not described as successful simulated integrations.
+[VALIDATION.md](VALIDATION.md) records build/signature checks, 40 emulator checks, real local decoding/queue/seek/import, grant/revocation/filtering and local display-off/wake. No official YouTube installation, paid account, physical phone or realme TV was attached. Real YouTube metadata/actions/background audio, source queue/Show video, vendor picture-off and real-TV wake behavior remain unverified. These are not described as successful simulated integrations.

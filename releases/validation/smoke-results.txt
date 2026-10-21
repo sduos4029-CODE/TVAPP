@@ -40,6 +40,15 @@ INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=PASS default device mode has no fabricated catalogue or sample playback
 
 INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS content tabs never substitute installed apps or fictional samples
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS published programme types and source new flags control each tab
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=PASS shared-title watchlist persists real metadata separately from YouTube links
+
+INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=PASS installed app discovery uses actual packages and icons
 
 INSTRUMENTATION_STATUS_CODE: 0
@@ -148,7 +157,10 @@ INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: stream=CAPTURE live-10-portrait-audio
 
 INSTRUMENTATION_STATUS_CODE: 0
-INSTRUMENTATION_RESULT: passed=37
+INSTRUMENTATION_STATUS: stream=CAPTURE v4-08-portrait-dashboard
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: passed=40
 INSTRUMENTATION_RESULT: stream=PASS home sample labels and navigation
 PASS catalogue content, language and provider filters
 PASS Kids age selection updates sample recommendations
@@ -163,6 +175,9 @@ PASS remote target focus setup
 PASS on-screen remote touch restores focus and activates
 PASS background stops audio and dashboard polling
 PASS default device mode has no fabricated catalogue or sample playback
+PASS content tabs never substitute installed apps or fictional samples
+PASS published programme types and source new flags control each tab
+PASS shared-title watchlist persists real metadata separately from YouTube links
 PASS installed app discovery uses actual packages and icons
 PASS real YouTube search URI encoding and remote keyboard
 PASS YouTube URL validation rejects other hosts and unsafe schemes
@@ -187,6 +202,6 @@ PASS imported content playback duration is real
 PASS local audio continues while emulator display is off
 PASS screen wakes and local playback remains controllable
 
-37 checks passed
+40 checks passed
 
 INSTRUMENTATION_CODE: -1

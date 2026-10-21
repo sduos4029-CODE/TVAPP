@@ -213,8 +213,38 @@ public class FlowSmoke extends Instrumentation {
       }
       app.navigate("Home");
       check(contains(app.content, "Favourite apps"), "Real app row absent");
-      check(contains(app.content, "Discover in your apps"), "Provider discovery absent");
+      check(contains(app.content, "From your TV apps"), "Provider discovery absent");
       check(app.player == null, "Sample player created in production mode");
+    });
+    test("content tabs never substitute installed apps or fictional samples", () -> {
+      for(String page:new String[]{"Movies","Shows","New","Kids"}){
+        app.navigate(page);
+        check(app.sharedContent.forPage(page).isEmpty(),"Unexpected shared TV feed on phone emulator");
+        check(contains(app.content,"Your apps do not share this catalogue"),"Unavailable feed not explained in "+page);
+        check(!contains(app.content,"Recently installed apps"),"Installed-app cards leaked into content tab");
+        check(!contains(app.content,"Find on YouTube"),"Generic trailer search substituted for a catalogue");
+      }
+      app.settings();check(find(app.drawer,"Design preview")==null,"Sample mode is still exposed in settings");app.closeDrawer();
+    });
+    test("published programme types and source new flags control each tab", () -> {
+      SharedTvContent.Item movie=new SharedTvContent.Item();movie.pkg="fixture.source";movie.name="Movie test fixture";movie.type=android.media.tv.TvContract.PreviewPrograms.TYPE_MOVIE;
+      SharedTvContent.Item episode=new SharedTvContent.Item();episode.pkg="fixture.source";episode.name="Episode test fixture";episode.type=android.media.tv.TvContract.PreviewPrograms.TYPE_TV_EPISODE;episode.watchNext=true;episode.watchType=android.media.tv.TvContract.WatchNextPrograms.WATCH_NEXT_TYPE_NEW;
+      SharedTvContent.Item kids=new SharedTvContent.Item();kids.pkg="fixture.source";kids.name="Family test fixture";kids.type=android.media.tv.TvContract.PreviewPrograms.TYPE_TV_SERIES;kids.kids=true;
+      app.sharedContent.items.add(movie);app.sharedContent.items.add(episode);app.sharedContent.items.add(kids);
+      check(app.sharedContent.forPage("Movies").size()==1 && app.sharedContent.forPage("Movies").get(0)==movie,"Movies misclassified");
+      check(app.sharedContent.forPage("Shows").size()==2,"TV programmes misclassified");
+      check(app.sharedContent.forPage("New").size()==1 && app.sharedContent.forPage("New").get(0)==episode,"New must use source's explicit flag");
+      check(app.sharedContent.forPage("Kids").size()==1 && app.sharedContent.forPage("Kids").get(0)==kids,"Kids inferred without family metadata");
+      app.sharedContent.items.clear();
+    });
+    test("shared-title watchlist persists real metadata separately from YouTube links", () -> {
+      SharedTvContent.Item item=new SharedTvContent.Item();item.pkg="fixture.source";item.name="Saved metadata fixture";item.type=android.media.tv.TvContract.PreviewPrograms.TYPE_MOVIE;item.source="Instrumentation fixture";item.poster="";item.link="";item.description="Test-only record, not live provider data";
+      app.navigate("My list");new SharedContentScreen(app,app.design).details(item);click("+ My list");
+      check(app.sharedContent.isSaved(item),"Shared title not saved");app.onBackPressed();
+      check(contains(app.content,"Saved metadata fixture"),"Saved programme not rendered immediately");
+      new SharedContentScreen(app,app.design).details(item);click("Remove from My list");app.onBackPressed();
+      check(!app.sharedContent.isSaved(item) && !contains(app.content,"Saved metadata fixture"),"Shared title removal did not update the list");
+      app.prefs.edit().remove("sharedTitleList").apply();app.navigate("Home");
     });
     test("installed app discovery uses actual packages and icons", () -> {
       app.scanApps();
@@ -257,7 +287,8 @@ public class FlowSmoke extends Instrumentation {
       fields.get(1).setText("My saved music link"); click("Save link");
       check(app.live.bookmarks().length() == 1, "Link not saved");
       app.build();
-      check(contains(app.content, "My saved music link"), "Link not rendered after recreation");
+      new SharedContentScreen(app,app.design).youtubeLinks();
+      check(contains(app.drawer, "My saved music link"), "Link not rendered after recreation");app.closeDrawer();
       check(app.prefs.getString("youtubeBookmarks", "").contains("dQw4w9WgXcQ"), "Link not persisted");
     });
     test("YouTube controls are honest without media-session access", () -> {
@@ -441,6 +472,7 @@ public class FlowSmoke extends Instrumentation {
       check(!app.landscape(), "Portrait transition failed");
       screenshot("live-09-portrait-home", () -> app.navigate("Home"));
       screenshot("live-10-portrait-audio", () -> app.navigate("Audio"));
+      screenshot("v4-08-portrait-dashboard", () -> app.navigate("Dashboard"));
       runOnMainSync(() -> { app.preview = true; app.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE); });
     }
   }
@@ -471,6 +503,19 @@ public class FlowSmoke extends Instrumentation {
     super.onStart();
     Bundle out = new Bundle();
     try {
+      if(options!=null && "true".equals(options.getString("screensOnly"))){
+        getTargetContext().getSharedPreferences("flow",0).edit().putBoolean("designDemo",false).putInt("realTabsVersion",4).putBoolean("remote",false).putBoolean("preview",true).commit();
+        app=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        waitForIdleSync();
+        screenshot("v4-01-dashboard",()->app.navigate("Dashboard"));
+        screenshot("v4-02-home",()->app.navigate("Home"));
+        screenshot("v4-03-movies",()->app.navigate("Movies"));
+        screenshot("v4-04-shows",()->app.navigate("Shows"));
+        screenshot("v4-05-new",()->app.navigate("New"));
+        screenshot("v4-06-kids",()->app.navigate("Kids"));
+        screenshot("v4-07-sources",()->{app.navigate("Movies");new SharedContentScreen(app,app.design).sources();});
+        out.putString("stream","7 screen captures completed. Visual review, not functional test results.");finish(Activity.RESULT_OK,out);return;
+      }
       Intent i =
           new Intent(getTargetContext(), MainActivity.class)
               .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -479,6 +524,7 @@ public class FlowSmoke extends Instrumentation {
           .edit()
           .clear()
           .putInt("visualVersion", 2)
+          .putInt("realTabsVersion", 4)
           .putBoolean("designDemo", true)
           .putBoolean("preview", true)
           .putBoolean("remote", true)

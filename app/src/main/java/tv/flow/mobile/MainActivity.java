@@ -33,6 +33,9 @@ public class MainActivity extends Activity {
   float designScale = 1;
   FlowDesign design;
   LiveFlow live;
+  SharedTvContent sharedContent;
+  int sharedPage;
+  SharedArtwork sharedArtwork;
   YouTubeMedia youtube;
   LocalAudioService localAudio;
   boolean localBound;
@@ -492,6 +495,9 @@ public class MainActivity extends Activity {
     getWindow().setNavigationBarColor(BG);
     prefs = getSharedPreferences("flow", MODE_PRIVATE);
     youtube = new YouTubeMedia(this);
+    sharedContent = new SharedTvContent(this);
+    sharedArtwork = new SharedArtwork(this);
+    if(prefs.getInt("realTabsVersion",0)<4){prefs.edit().remove("designDemo").putInt("realTabsVersion",4).apply();}
     localBound=bindService(new Intent(this,LocalAudioService.class),localConnection,Context.BIND_AUTO_CREATE);
     IntentFilter packages = new IntentFilter();
     packages.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -561,6 +567,7 @@ public class MainActivity extends Activity {
     resumed = true;
     scanApps();
     youtube.start();
+    sharedContent.startObserving();
     if (!demo()) build();
     handler.removeCallbacks(ticker);
     handler.post(ticker);
@@ -572,6 +579,7 @@ public class MainActivity extends Activity {
     handler.removeCallbacks(ticker);
     if (player != null && player.isPlaying()) player.pause();
     youtube.stop();
+    sharedContent.stopObserving();
     super.onPause();
   }
 
@@ -581,6 +589,8 @@ public class MainActivity extends Activity {
     if (player != null) player.release();
     if (watchingPackages) unregisterReceiver(packageChanges);
     youtube.stop();
+    sharedContent.close();
+    sharedArtwork.close();
     if(localAudio!=null) localAudio.changed=null;
     if(localBound) unbindService(localConnection);
     super.onDestroy();
@@ -741,7 +751,9 @@ public class MainActivity extends Activity {
     cancelMove();
     if ((s.equals("Movies") && type.equals("Show")) || (s.equals("Shows") && type.equals("Movie")))
       type = "All";
+    if(!page.equals(s))sharedPage=0;
     page = s;
+    sharedContent.startObserving();
     build();
   }
 
@@ -1021,7 +1033,7 @@ public class MainActivity extends Activity {
   }
 
   void openGlobalSearch() {
-    if (!demo()) { live.search(false); return; }
+    if (!demo()) { new SharedContentScreen(this,design).search(); return; }
     LinearLayout p = panel("Search");
     EditText q = new EditText(this);
     q.setSingleLine(true);
@@ -1164,7 +1176,7 @@ public class MainActivity extends Activity {
               + " · API "
               + Build.VERSION.SDK_INT
               + (detailed
-                  ? "\nFlow TV 0.3.0 · "
+                  ? "\nFlow TV 0.4.0 · "
                       + (tv() ? "TV" : "Phone/tablet")
                       + "\nBrand: "
                       + Build.BRAND

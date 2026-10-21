@@ -39,38 +39,7 @@ final class LiveFlow {
     return c;
   }
 
-  void home() {
-    LinearLayout welcome = card(a.content, 18);
-    LinearLayout line = d.row();
-    line.addView(d.bold("Your apps. Your screen.", 30, FlowDesign.TEXT), new LinearLayout.LayoutParams(0, -2, 1));
-    if (a.landscape()) line.addView(d.label(a.apps.size() + " installed apps", 12, FlowDesign.LAV));
-    welcome.addView(line);
-    welcome.addView(d.label("Open a favourite, discover in your streaming apps, or find music on YouTube.", 13, FlowDesign.MUTED));
-    LinearLayout actions = d.row();
-    actions.addView(d.mint("▦  All apps", () -> a.navigate("Apps")));
-    actions.addView(d.button("⌕  Search YouTube", () -> search(false)));
-    if(a.landscape()) actions.addView(d.button("◫  Dashboard", () -> a.navigate("Dashboard")));
-    welcome.addView(actions);
-    if(!a.landscape()) welcome.addView(d.button("◫  Dashboard", () -> a.navigate("Dashboard")));
-    d.section(a.content, "Favourite apps", "Real installed apps • hold to reorder");
-    d.favoriteRow();
-    d.gap(a.content, 8);
-    ArrayList<MainActivity.AppEntry> recent = recentApps();
-    if (!recent.isEmpty()) {
-      d.section(a.content, "Recently opened", "Opened through Flow TV");
-      appRow(recent, true);
-      d.gap(a.content, 8);
-    }
-    d.section(a.content, "Discover in your apps", "Live suggestions open in each provider");
-    ArrayList<MainActivity.AppEntry> providers = providers();
-    if (providers.isEmpty()) {
-      LinearLayout empty = card(a.content, 13);
-      empty.addView(d.label("No supported streaming app is installed yet.", 15, FlowDesign.TEXT));
-      empty.addView(d.label("Install YouTube or a streaming app, then return. Flow refreshes app cards automatically.", 12, FlowDesign.MUTED));
-      empty.addView(d.button("Open Play Store", this::store));
-    } else appRow(providers, false);
-    d.note(a.content, "Flow has no connected recommendation feed. No invented films, provider availability or viewing history are shown.");
-  }
+  void home() {new SharedContentScreen(a,d).render();}
 
   ArrayList<MainActivity.AppEntry> providers() {
     ArrayList<MainActivity.AppEntry> list = new ArrayList<>();
@@ -126,25 +95,8 @@ final class LiveFlow {
   }
 
   void catalogue() {
-    if (a.page.equals("My list")) { saved(); return; }
-    LinearLayout intro = card(a.content, 22);
-    intro.addView(d.bold(a.page.equals("New") ? "New in your apps" : a.page, 30, FlowDesign.TEXT));
-    intro.addView(d.label("Browse real content in your installed providers.", 16, FlowDesign.MUTED));
-    intro.addView(d.label("An in-app catalogue is not connected. Flow does not invent new releases, availability, ratings or personal suggestions.", 13, FlowDesign.MUTED));
-    String query = a.page.equals("Movies") ? "new movie trailers" : a.page.equals("Shows") ? "new series trailers" : a.page.equals("Kids") ? "kids shows" : "new releases trailers";
-    intro.addView(d.mint("⌕  Find on YouTube", () -> openYouTube(query, false)));
-    if (a.page.equals("Kids")) d.note(intro, "Opens YouTube search, not a supervised Kids mode. Use parental controls in the provider; Flow does not enforce ratings or restrictions.");
-    d.section(a.content, "Installed providers", "Open an app for its latest content");
-    ArrayList<MainActivity.AppEntry> list = providers();
-    if (list.isEmpty()) a.content.addView(d.button("Install streaming apps", this::store));
-    else appRow(list, false);
-    if (a.page.equals("New")) {
-      d.gap(a.content, 12);
-      d.section(a.content, "Recently installed apps", "Sorted by Android installation time");
-      ArrayList<MainActivity.AppEntry> sorted = new ArrayList<>(a.apps);
-      sorted.sort((x,y) -> Long.compare(installTime(y.pkg), installTime(x.pkg)));
-      if (!sorted.isEmpty()) appRow(sorted, false);
-    }
+    if(a.page.equals("My list")){new SharedContentScreen(a,d).saved();return;}
+    new SharedContentScreen(a,d).render();
   }
   long installTime(String pkg) {
     try { return a.getPackageManager().getPackageInfo(pkg, 0).firstInstallTime; }
