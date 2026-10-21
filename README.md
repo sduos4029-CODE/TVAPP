@@ -1,50 +1,37 @@
-# Flow TV 0.4.2 — public catalogue integration
+# Flow TV 0.5.0 — full Android app
 
-[Debug APK](releases/Flow-TV-v0.4.2-debug.apk) · [Screenshots](releases/screenshots-v0.4.2) · [Validation](VALIDATION.md) · [Imported-code review](IMPORT_REVIEW.md)
+[Download full-app debug APK](releases/Flow-TV-v0.5.0-debug.apk) · [Portable source ZIP](releases/Flow-TV-v0.5.0-source.zip) · [Actual app screenshots](releases/screenshots-v0.5.0) · [Validation](VALIDATION.md)
 
-Native Android phone/TV application. Rounded Option C Dashboard, actual installed apps, touch/D-pad/landscape preview and original dot-matrix local audio are preserved.
+The complete phone/TV project: native interactive Home, Movies, Shows, New, Kids, My list, Apps, Minimal Glass Dashboard and dot-matrix Audio. Package `tv.flow.mobile`; install and open **Flow TV**. The separately reviewed `com.flowtv.launcher` prototype remains a smaller, independent project.
 
-## What changed
+## Working core
 
-The supplied Kotlin catalogue was adapted to the existing dependency-free Java app. Movies now requests public **Wikidata** film metadata; Shows uses the **TVmaze** directory and title search. Home combines actual favourite/recent apps with public film discovery and today's global episode schedule. New distinguishes films released within 90 days from today's scheduled episodes. Kids filters explicit children/family metadata; anime alone does not qualify. My List stores selected real source metadata locally, independently of saved YouTube links and earlier shared TV cards.
+- **Home and apps:** real installed icons and app launches, favourites, touch drag ordering, remote hold-OK ordering, locally recorded apps opened through Flow, and All Apps.
+- **Movies / Shows / New / Kids:** public metadata request layer, title search, language filters, right-side details, local My list and explicit loading/offline states. Installed streaming-app shortcuts remain useful when public metadata is unavailable; each is labelled as opening the app home screen. The Kids shortcut does not claim to open a verified child profile.
+- **Dashboard:** Option C navy, solid rounded slate widgets, mint focus and lavender accents. Actual installed-device RAM/storage, CPU information, connection state, accessible traffic counters and ports. Unsupported measurement widgets hide. System summary is focusable and opens actual device details. Phone readings are labelled.
+- **Audio:** original dot-matrix black/white/red design. First use selects functional local audio; an explicit source choice is preserved. Original bundled tracks and user-selected files support real playback, metadata/artwork where present, search, queue, seek, volume and media notification/background service. No autoplay on app launch.
+- **Phone testing:** ordinary app launch, landscape TV Preview, optional on-screen arrows/OK/Back, touch, Android Back and keyboard/D-pad. No replacement of the phone Home launcher.
+- **Settings/privacy:** compact right-side panels, supported Android settings intents, appearance settings separate from system controls, local data/history clearing with confirmation. No ads, analytics or tracking SDKs.
 
-**Live TVmaze/Wikidata retrieval is not verified in this build environment.** Its network proxy rejects their domains. Implemented requests are not proof of endpoint availability or catalogue completeness. Empty/error states never substitute fictional movies. Test fixtures establish parsing/control behavior only and are removed before final production captures. See [source boundaries](CONNECTED_APPS.md).
+0.5.0 adds explicit app-only navigation across browsing tabs, recognizes Airtel Xstream alongside Prime Video/JioHotstar, prefers phone launcher activities on phones and TV activities on TVs, skips disabled/non-exported apps, defaults first-use audio to local playback, adds focusable System details to Dashboard and stops Dashboard polling directly when the display sleeps. Earlier core features are retained.
 
-The user is testing a phone signed into Prime Video, JioHotstar and Airtel Xstream. Public metadata does not import those private logins, catalogues, histories or subscriptions. These sources do not establish regional streaming availability in India. No provider availability filter or fake Watch action is offered. Details distinguish **Open metadata source** from **Open a streaming app**; the latter explicitly opens the app, not a verified title. Missing apps are explained. A general Wikidata YouTube video statement is not assumed to be a trailer.
+## Integration limits
 
-## Catalogue controls and privacy
+**Live TVmaze/Wikidata access is unverified.** The managed cloud proxy returned CONNECT 403 for both public API hosts during this build. No fictional movie/show results are substituted. The phone's own network may differ. Implemented requests and fixture tests do not prove current endpoint availability, coverage or licensing compliance for wider distribution.
 
-- No catalogue API key is needed for these public endpoints. No unused TMDB secret is embedded in BuildConfig.
-- Search by title using actual native buttons and the remote keyboard. Typing does not send requests; Search submits them.
-- Original-language filtering for Wikidata; source-language filtering within TVmaze's loaded response. Default films: Hindi; series: all languages.
-- TVmaze directory slices are ordered by source ID, not popularity or personal recommendation. Up to 40 matching records per response; 24 cards per UI page.
-- Source fetches run off the main thread, with HTTPS, fixed public hosts, no redirects/credentials/cookies, timeouts and a 2 MB response cap. No periodic catalogue polling.
-- Up to 12 cached responses with 30-minute freshness. Refresh failures retain available records with an explicit cached/stale error and timestamp. A short failure cooldown prevents immediate retry loops.
-- Sources opens a compact right-side panel with networking on/off, cache removal, source links, attribution and optional TV shared-feed explanation.
-- Artwork memory cache is 6 MB with reduced-size decoding. TVmaze medium images come from the source. Wikidata P18 is a source image, not necessarily a poster. Commons images require a resolved permitted CC BY/CC BY-SA/public-domain licence and source attribution before display. Image licences are separate from Wikidata CC0 structured metadata.
-- Public API/image servers receive ordinary connection data and submitted search terms; their own privacy policies apply. Flow sends no streaming-app credentials.
+Wikidata provides film metadata; TVmaze provides series/search and dated episode schedules. Neither imports private Prime Video, JioHotstar or Airtel Xstream logins, watch histories or subscriptions. India streaming availability, provider-added dates, exact-title provider playback, verified trailers and certified kids ratings are unavailable. Provider cards use installed app icons and open app home screens; they are not movie cards. [Catalogue boundaries](CONNECTED_APPS.md).
 
-Current source documentation retrieval was blocked here; linked API/licensing references and the assumptions inherited from the supplied snippets are documented in IMPORT_REVIEW.md. Source availability, licensing obligations and coverage should be verified before wider distribution.
+YouTube search opens the official app or browser. Flow does not extract streams, request notification/accessibility access, read external media sessions or offer a hidden embedded player. YouTube playback, listening modes and screen-off audio stay under its official app and any applicable membership/content/device restrictions. Flow's dot-matrix controls work with local audio. **YouTube Hide Video and Screen Off are not implemented or verified.** [Feasibility and documentation](YOUTUBE_FEASIBILITY.md).
 
-## Minimal Glass Dashboard
+For local audio, a phone's physical power button can put the display to sleep while the foreground service continues; decoding/state advance was checked on an Android 11 emulator. Physical-phone/TV behavior still needs testing. **Black screen — display stays on** is a separate option with no widgets; it does not power off the panel/backlight. realme RMV2004 picture-off, standby/wake, HDMI control and actual TV feed access remain unverified.
 
-Uses the supplied navy/slate/mint/lavender palette, large rounded widgets, circular icon wells, actual RAM/storage usage rings and matching focus outlines. RAM, storage, CPU information, transport/validation, accessible USB/TV inputs and cumulative traffic come from the installed device. Network rates use actual counter deltas and elapsed time; unsupported counters and first/reset samples are not converted to fabricated zeros. Baselines reset off Dashboard or while inactive. No fake CPU/GPU load or sample realme specifications are shown. Phone data is labelled; TV-only controls are unavailable on a phone. Actual app version is read from PackageManager.
+## Install
 
-## Audio and YouTube
+Android 8/API 26 or newer. Download the APK to the phone, open it and follow Android's per-source installation prompt, then launch **Flow TV**. Keep Play Protect enabled. Physical-phone Play Protect acceptance is unverified; an emulator/adb install is not Google approval. [Installation report](INSTALLATION.md).
 
-The existing tested local playback service remains, rather than introducing a second service. It provides genuine decoding, file-picker import, metadata/artwork, queue/search/seek, volume, pause/resume, audio-focus handling and a media notification. Display sleep/wake is checked on an Android 11 emulator, not physical TV hardware. **Black screen — display stays on** remains separate from actual panel power-off and contains no widgets.
+VersionCode 7 / versionName 0.5.0, compile/target SDK 35. The existing cloud debug certificate is retained, allowing an update over a matching signed `tv.flow.mobile` build. A different certificate requires an intentional data-aware migration; never silently uninstall the user's app. This is a debug testing build, not a Play Store production release.
 
-YouTube opens/searches in its official app. Notification access and external media-session acquisition remain removed. No YouTube metadata, remote controls, hidden player, extracted streams, Premium bypass or successful screen-off integration is simulated. [YouTube feasibility](YOUTUBE_FEASIBILITY.md).
-
-## Installation and permissions
-
-Android 8+; package `tv.flow.mobile`; versionCode 6 / versionName 0.4.2; target/compile SDK 35. Install over 0.4.1 when the signing certificate matches. The generated APK preserves this environment's previous debug certificate. Another build environment may use a different certificate; do not silently uninstall a user's app/data to work around that.
-
-No notification listener, accessibility service, microphone, SMS, contacts, Bluetooth runtime grant, broad storage, QUERY_ALL_PACKAGES or install-packages permission. Actual Bluetooth connection/device access is not implemented; the card reports hardware presence. Network/audio/TV-feed permissions support implemented features. No ads, analytics or tracking SDKs. Cleartext is disabled and network trust uses system certificates.
-
-Keep Play Protect enabled. The earlier installation warning's exact cause and new-build acceptance remain unverified. An emulator/adb install does not establish Google approval. [Installation report](INSTALLATION.md).
-
-## Build and checks
+## Build and verification
 
 JDK 17+ (tested 21), Gradle 8.10.2, Android SDK/build-tools 35:
 
@@ -52,18 +39,18 @@ JDK 17+ (tested 21), Gradle 8.10.2, Android SDK/build-tools 35:
 ./gradlew assembleDebug assembleDebugAndroidTest lintDebug
 ```
 
-Prepared cloud environment: `./scripts/build-cloud.sh`. Main APK: `app/build/outputs/apk/debug/app-debug.apk`.
+Prepared cloud workspace: `./scripts/build-cloud.sh`. Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
-Dependency-free instrumentation in a disposable API 30 emulator:
+Disposable Android 11 emulator only:
 
 ```sh
-adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb shell am instrument -r -w tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
 ```
 
-Tests reset local data, use explicitly synthetic catalogue transport/parser fixtures, launch Settings, import/delete their own audio fixture and sleep/wake the emulator. Do not run them on a personal installation. Optional screenshots-only mode uses `-e screensOnly true`; it enables real source requests and does not inject successful results. Captures are stored in internal `files/visuals`.
+Tests reset local state, launch device settings, use explicitly synthetic parser/transport fixtures, import/delete their own audio fixture and sleep/wake the emulator. Do not run on a personal installation. `-e screensOnly true` captures the production UI with actual requests and no successful catalogue fixtures. [Executed results and remaining checks](VALIDATION.md).
 
-Doto is bundled under the SIL Open Font License. The three bundled sample WAVs are original Flow audio. No Kotlin, AppCompat, coroutines or other runtime dependency migration was needed.
+Bundled WAVs are original Flow sample audio. Doto is bundled under the SIL Open Font License in `app/src/main/assets/fonts/OFL.txt`. There are no runtime third-party libraries in this native Java app.
 
-## Supplied ZIP review and separate prototype
-
-The supplied `FlowTV.zip` is a smaller Kotlin launcher, separate from the full app above. Its corrected phone-test build installs alongside Flow TV and does not include Dashboard or audio. [Review/comparison](reviews/FlowTV-zip-review.md) · [Prototype APK](releases/Flow-TV-Prototype-v0.1.1-debug.apk) · [Prototype source ZIP](releases/Flow-TV-Prototype-v0.1.1-source.zip).
+[Prototype ZIP review/comparison](reviews/FlowTV-zip-review.md) · [Prototype source](prototypes/launcher-review) · [Earlier supplied-code integration review](IMPORT_REVIEW.md).

@@ -30,6 +30,7 @@ final class CatalogueScreen {
     else if(kind().equals("show") && a.catalogueQuery.isEmpty())scope+=" · source directory page "+(a.catalogueIndex+1)+", not ranked recommendations";
     paragraph(a.content,scope+". Streaming availability in India and your subscription are not supplied by these sources.");
     if(a.page.equals("Kids")){paragraph(a.content,"Children/family genre collection, without certified age ratings. Anime is not automatically included. This does not enforce parental controls.");a.content.addView(d.button("Parental settings",()->{LinearLayout p=d.panel("Parental settings");paragraph(p,"Flow does not enforce a device-wide child lock. Use supported parental controls in Android and each provider app.");p.addView(d.button("Open device settings",()->a.openSettings(android.provider.Settings.ACTION_SETTINGS)));}));}
+    providerApps();
     result(a.openCatalogue.fetch(request(kind()),false),a.content,true);
     if(kind().equals("show") && !a.page.equals("New") && a.catalogueQuery.isEmpty()){
       LinearLayout pages=d.row();Button previous=d.button("‹ Directory page",()->{a.catalogueIndex--;a.sharedPage=0;a.build();});previous.setEnabled(a.catalogueIndex>0);pages.addView(previous);
@@ -45,6 +46,7 @@ final class CatalogueScreen {
     if(!movies.cards.isEmpty())featured(movies.cards.get(0));
     d.section(a.content,"Favourite apps","Actual installed apps");d.favoriteRow();d.gap(a.content,8);
     if(!a.live.recentApps().isEmpty()){d.section(a.content,"Recently opened","Apps opened through Flow");a.live.appRow(a.live.recentApps(),true);}
+    providerApps();
     d.section(a.content,"Film discovery","Wikidata · "+language("movie"));result(movies,a.content,false);
     OpenCatalogue.Result shows=a.openCatalogue.fetch(new OpenCatalogue.Request("show","",language("show"),false,true,0),false);
     d.section(a.content,"Episodes scheduled today","TVmaze · global, not subscription availability");result(shows,a.content,false);
@@ -53,6 +55,18 @@ final class CatalogueScreen {
       if(!shared.isEmpty()){d.section(a.content,"From your TV apps","Only OS-permitted published cards");new SharedContentScreen(a,d).grid(shared);}
     }
     attribution(a.content);
+  }
+  void providerApps(){
+    d.section(a.content,"Browse in your apps","Installed apps · opens their home screen");
+    ArrayList<MainActivity.AppEntry> installed=a.live.providers();
+    if(installed.isEmpty()){
+      paragraph(a.content,"No recognised streaming apps were found. Open All Apps to choose another installed player.");
+    } else a.live.appRow(installed,false);
+    a.content.addView(d.button("All installed apps",()->a.navigate("Apps")));
+    paragraph(a.content,a.page.equals("Kids")
+        ?"App shortcuts open the provider home screen, not a verified kids section. Use that app’s own child profile and parental controls."
+        :"App shortcuts do not import catalogues or open a verified movie/series page. Browse and play inside the provider app.");
+    d.gap(a.content,8);
   }
   void featured(OpenCatalogue.Card c){
     LinearLayout box=d.col();box.setPadding(d.u(20),d.u(15),d.u(20),d.u(15));box.setBackground(d.border(FlowDesign.CARD,FlowDesign.LINE,24,1));

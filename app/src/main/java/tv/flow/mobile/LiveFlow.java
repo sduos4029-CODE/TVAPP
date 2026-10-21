@@ -41,15 +41,17 @@ final class LiveFlow {
 
   void home() {new CatalogueScreen(a,d).render();}
 
+  static boolean isVideoProvider(String pkg) {
+    return Arrays.asList("com.amazon.avod.thirdpartyclient", "com.amazon.amazonvideo.livingroom",
+        "in.startv.hotstar", "in.airtel.tv", "com.netflix.mediaclient", "com.netflix.ninja",
+        "com.disney.disneyplus", "com.disney.disneyplus.tv", "com.zee5", "com.graymatrix.did",
+        "com.sonyliv", "com.sonyliv.tv", "com.jio.media.ondemand", "com.jio.media.stb.ondemand",
+        "com.google.android.youtube", "com.google.android.youtube.tv").contains(pkg);
+  }
+
   ArrayList<MainActivity.AppEntry> providers() {
     ArrayList<MainActivity.AppEntry> list = new ArrayList<>();
-    for (MainActivity.AppEntry app : a.apps) {
-      String pkg = app.pkg.toLowerCase(Locale.ROOT);
-      if (YouTubeMedia.isYouTube(pkg) || pkg.contains("netflix") || pkg.startsWith("com.amazon.avod")
-          || pkg.startsWith("com.amazon.amazonvideo") || pkg.contains("hotstar")
-          || pkg.startsWith("com.disney") || pkg.startsWith("com.zee5") || pkg.startsWith("com.sonyliv")
-          || pkg.startsWith("com.jio.media") || pkg.equals("org.videolan.vlc")) list.add(app);
-    }
+    for (MainActivity.AppEntry app : a.apps) if (isVideoProvider(app.pkg)) list.add(app);
     return list;
   }
 

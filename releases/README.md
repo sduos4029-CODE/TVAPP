@@ -1,31 +1,13 @@
-# Flow TV 0.4.2
+# Flow TV 0.5.0 — full app
 
-[Download debug APK](Flow-TV-v0.4.2-debug.apk) · [Actual APK screenshots](screenshots-v0.4.2) · [Source](../app/src) · [Validation](../VALIDATION.md) · [Supplied-code review](../IMPORT_REVIEW.md)
+[Download full APK](Flow-TV-v0.5.0-debug.apk) · [Download full source ZIP](Flow-TV-v0.5.0-source.zip) · [Screenshots](screenshots-v0.5.0) · [Validation](../VALIDATION.md) · [Checksums](SHA256SUMS.txt)
 
-Android 8+. VersionCode 6, target SDK 35. Install over 0.4.1 when the signing certificate matches; the certificate used here is unchanged. Keep Play Protect enabled. Acceptance on a physical phone remains unverified.
+Install and open **Flow TV** on Android 8+. Package `tv.flow.mobile`, versionCode 7, target SDK 35. Same cloud debug certificate as 0.4.2; update a matching signed installation. Keep Play Protect enabled; physical-phone acceptance remains unverified.
 
-## Implemented
+Includes Home, Movies, Shows, New, Kids, My list, real installed app cards/favourites/reordering, rounded Minimal Glass hardware Dashboard, dot-matrix local audio, compact settings, landscape phone TV Preview and optional on-screen remote.
 
-- Supplied public-catalogue approach adapted to the existing native Java application: Wikidata film metadata, TVmaze series directory/search and dated episode schedule; connected Home/Movies/Shows/New/Kids, native title search and local My List.
-- Honest source/date/language attribution, source information links and explicitly app-only provider fallback. No unsupported Watch action or private-account import.
-- Error/loading states, bounded caching, stale-data labels, source networking controls and metadata/artwork attribution.
-- The supplied Minimal Glass palette with rounded Dashboard cards, actual RAM/storage rings and traffic rates derived from real counters.
-- Preserved installed app icons/launches/reordering, touch/D-pad/on-screen remote, compact settings and functional local dot-matrix audio.
+0.5.0 makes installed streaming apps accessible directly from browsing tabs with explicit app-only labels, includes Airtel Xstream recognition, prefers the appropriate phone/TV launcher activity, defaults first-use audio to working local playback and adds remote-accessible System details. No movie catalogue, source artwork, hardware measurements or YouTube playback success is fabricated.
 
-## Verification boundary
+**Public catalogue retrieval remains unverified:** the build environment rejects TVmaze/Wikidata with CONNECT 403. These sources do not read private provider accounts or establish India streaming availability. YouTube opens/searches in its official app; Flow has no hidden-video, external playback-control or verified YouTube screen-off integration. Physical realme TV picture-off, remote/vendor behavior and actual shared-TV metadata access remain unverified.
 
-**This environment blocks TVmaze and Wikidata through its network policy. No successful live catalogue connection is claimed.** Instrumentation fixtures test parsing and control behavior; they do not establish live source content, coverage or provider access. Final screenshots contain no injected successful catalogue rows. Test actual source retrieval on the phone’s own network. See [source limits](../CONNECTED_APPS.md).
-
-Prime Video, JioHotstar and Airtel Xstream logins remain private. No verified India streaming-availability feed, subscription detection, provider-added history, exact-title link, certified kids rating or YouTube playback control is implemented. Notification-listener access remains removed. Actual realme Picture Off/remote behavior and YouTube screen-off playback remain unverified.
-
-| Rounded phone-data Dashboard | Actual catalogue/error state |
-| --- | --- |
-| ![Dashboard](screenshots-v0.4.2/01-dashboard.png) | ![Movies](screenshots-v0.4.2/03-movies.png) |
-
-[Checksums](SHA256SUMS.txt) · [Permission audit](validation/permission-audit.json) · [Installation warning report](../INSTALLATION.md)
-
-Versioned older APKs/screenshots remain historical. `Flow-TV-debug.apk` aliases this release.
-
-## Supplied ZIP review and separate prototype
-
-The supplied `FlowTV.zip` is a smaller Kotlin launcher, separate from the full app above. Its corrected phone-test build installs alongside Flow TV and does not include Dashboard or audio. [Review/comparison](../reviews/FlowTV-zip-review.md) · [Prototype APK](Flow-TV-Prototype-v0.1.1-debug.apk) · [Prototype source ZIP](Flow-TV-Prototype-v0.1.1-source.zip).
+`Flow-TV-debug.apk` aliases this full release. Versioned earlier releases remain historical. The separately labelled [launcher prototype](Flow-TV-Prototype-v0.1.1-debug.apk) is a smaller app without Dashboard/audio; [comparison](../reviews/FlowTV-zip-review.md).

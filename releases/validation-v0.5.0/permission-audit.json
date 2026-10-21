@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-21",
+  "package": "tv.flow.mobile",
+  "versionName": "0.5.0",
+  "versionCode": 7,
+  "minSdk": 26,
+  "targetSdk": 35,
+  "debuggable": true,
+  "requestedPermissions": [
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.INTERNET",
+    "com.android.providers.tv.permission.READ_EPG_DATA",
+    "android.permission.MODIFY_AUDIO_SETTINGS",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+    "android.permission.WAKE_LOCK"
+  ],
+  "forbiddenDexIdentifiersAbsent": [
+    "getActiveSessions",
+    "NotificationListenerService",
+    "BIND_NOTIFICATION_LISTENER_SERVICE",
+    "BIND_ACCESSIBILITY_SERVICE"
+  ],
+  "certificateSha256": "c5129f9e2307d1061497bbd58cd4d7ae97829f1b23980dce6aa4eb50409114b0",
+  "apkSha256": "31053e161b2146adad86cf0b688854c822a84a3c80e54ab9c1c3f9504a1def06",
+  "notificationListener": false,
+  "accessibilityService": false,
+  "microphone": false,
+  "privateProviderAccountImport": false,
+  "youtubeHideVideoVerified": false,
+  "youtubeScreenOffVerified": false,
+  "liveCatalogueVerified": false,
+  "playProtectAcceptance": "unverified; emulator has no Play Protect"
+}

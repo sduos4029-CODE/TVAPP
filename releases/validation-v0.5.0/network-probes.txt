@@ -1,0 +1,4 @@
+2026-10-21; inherited managed HTTPS proxy; TLS verification enabled.
+https://api.tvmaze.com/search/shows?q=planet: CONNECT 403 Forbidden
+https://query.wikidata.org/sparql (bounded SELECT/LIMIT request): CONNECT 403 Forbidden
+No alternate egress or mirror was used. Live catalogue retrieval remains unverified.

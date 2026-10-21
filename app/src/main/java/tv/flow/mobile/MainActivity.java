@@ -54,7 +54,15 @@ public class MainActivity extends Activity {
     }
     @Override public void onServiceDisconnected(ComponentName name) { localAudio=null; if(live!=null)live.updateMedia(); }
   };
-  boolean watchingPackages;
+  boolean watchingPackages, watchingScreen;
+  final BroadcastReceiver screenChanges = new BroadcastReceiver() {
+    @Override public void onReceive(Context context, Intent intent) {
+      handler.removeCallbacks(ticker);
+      if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) trafficReading.reset();
+      if (Intent.ACTION_SCREEN_ON.equals(intent.getAction()) && resumed && displayInteractive())
+        handler.post(ticker);
+    }
+  };
   final BroadcastReceiver packageChanges = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       scanApps();
@@ -481,7 +489,7 @@ public class MainActivity extends Activity {
   final Runnable ticker =
       new Runnable() {
         public void run() {
-          if (!resumed) return;
+          if (!resumed || !displayInteractive()) return;
           if (clock != null)
             clock.setText(
                 new java.text.SimpleDateFormat("h:mm a", Locale.getDefault()).format(new Date()));
@@ -515,6 +523,11 @@ public class MainActivity extends Activity {
     if (Build.VERSION.SDK_INT >= 33) registerReceiver(packageChanges, packages, Context.RECEIVER_EXPORTED);
     else registerReceiver(packageChanges, packages);
     watchingPackages = true;
+    IntentFilter screen = new IntentFilter(Intent.ACTION_SCREEN_ON);
+    screen.addAction(Intent.ACTION_SCREEN_OFF);
+    if (Build.VERSION.SDK_INT >= 33) registerReceiver(screenChanges, screen, Context.RECEIVER_NOT_EXPORTED);
+    else registerReceiver(screenChanges, screen);
+    watchingScreen = true;
     remote = prefs.getBoolean("remote", false);
     preview = prefs.getBoolean("preview", true);
     if (prefs.getInt("visualVersion", 0) < 2) {
@@ -598,6 +611,7 @@ public class MainActivity extends Activity {
     handler.removeCallbacksAndMessages(null);
     if (player != null) player.release();
     if (watchingPackages) unregisterReceiver(packageChanges);
+    if (watchingScreen) unregisterReceiver(screenChanges);
     youtube.stop();
     sharedContent.close();
     sharedArtwork.close();
@@ -606,6 +620,10 @@ public class MainActivity extends Activity {
     if(localAudio!=null) localAudio.changed=null;
     if(localBound) unbindService(localConnection);
     super.onDestroy();
+  }
+
+  boolean displayInteractive() {
+    return ((PowerManager)getSystemService(POWER_SERVICE)).isInteractive();
   }
 
   int dp(float n) {
@@ -731,7 +749,7 @@ public class MainActivity extends Activity {
   }
 
   boolean demo() { return prefs.getBoolean("designDemo", false); }
-  boolean localMode() { return prefs.getString("audioSource", "youtube").equals("local"); }
+  boolean localMode() { return prefs.getString("audioSource", "local").equals("local"); }
 
   @Override protected void onActivityResult(int request, int result, Intent data) {
     super.onActivityResult(request,result,data);
@@ -912,22 +930,27 @@ public class MainActivity extends Activity {
     apps.clear();
     PackageManager pm = getPackageManager();
     HashSet<String> seen = new HashSet<>();
-    for (String category :
-        new String[] {Intent.CATEGORY_LEANBACK_LAUNCHER, Intent.CATEGORY_LAUNCHER}) {
+    String[] categories = tv()
+        ? new String[] {Intent.CATEGORY_LEANBACK_LAUNCHER, Intent.CATEGORY_LAUNCHER}
+        : new String[] {Intent.CATEGORY_LAUNCHER, Intent.CATEGORY_LEANBACK_LAUNCHER};
+    for (String category : categories) {
       Intent q = new Intent(Intent.ACTION_MAIN).addCategory(category);
       for (ResolveInfo info : pm.queryIntentActivities(q, 0)) {
+        if(info.activityInfo==null || !info.activityInfo.enabled || !info.activityInfo.exported
+            || !info.activityInfo.applicationInfo.enabled) continue;
         String pkg = info.activityInfo.packageName;
-        if (pkg.equals(getPackageName()) || !seen.add(pkg)) continue;
-        AppEntry a = new AppEntry();
-        a.pkg = pkg;
-        a.label = info.loadLabel(pm).toString();
-        a.icon = info.loadIcon(pm);
-        a.intent =
-            new Intent(Intent.ACTION_MAIN)
-                .addCategory(category)
-                .setComponent(new ComponentName(pkg, info.activityInfo.name))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        apps.add(a);
+        if (pkg.equals(getPackageName()) || seen.contains(pkg)) continue;
+        try {
+          AppEntry entry = new AppEntry();
+          entry.pkg = pkg;
+          CharSequence label = info.loadLabel(pm);
+          entry.label = label==null ? pkg : label.toString();
+          entry.icon = info.loadIcon(pm);
+          entry.intent = new Intent(Intent.ACTION_MAIN).addCategory(category)
+              .setComponent(new ComponentName(pkg, info.activityInfo.name))
+              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          apps.add(entry); seen.add(pkg);
+        } catch(RuntimeException ignored) { /* App may be removed while scanning. */ }
       }
     }
     apps.sort((a, b) -> a.label.compareToIgnoreCase(b.label));

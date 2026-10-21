@@ -19,6 +19,7 @@ final class GlassDashboard {
   final Map<String,TextView> values=new LinkedHashMap<>();
   final Map<String,TextView> captions=new HashMap<>();
   final Map<String,Ring> rings=new HashMap<>();
+  final Map<String,View> widgets=new HashMap<>();
   final int slate=0xff141c2e, rim=0xff304457;
   GlassDashboard(MainActivity activity,FlowDesign design){a=activity;d=design;}
 
@@ -47,6 +48,10 @@ final class GlassDashboard {
     TextView chip=d.label(a.tv()?"TV readings":"Phone readings",10,FlowDesign.LAV);
     chip.setBackground(d.border(0xff202a43,0xff414365,14,1));
     chip.setPadding(d.u(11),d.u(4),d.u(11),d.u(4));footer.addView(chip);
+    footer.setPadding(d.u(12),d.u(8),d.u(12),d.u(8));
+    footer.setBackground(d.border(slate,rim,18,1));
+    footer.setContentDescription("System, actual device information, open details");
+    d.focus(footer,()->a.detail("System"));
     a.content.addView(footer);
     d.note(a.content,"Tap a widget for details · unavailable measurements are hidden");
     refresh();
@@ -90,6 +95,7 @@ final class GlassDashboard {
       gauge.setContentDescription(key+" used percentage gauge");
     }
     card.addView(body,new LinearLayout.LayoutParams(-1,0,1));
+    widgets.put(key,card);
     values.put(key,value);captions.put(key,caption);a.metricKeys.add(key);a.metricViews.add(value);
     d.focus(card,()->a.detail(key));
     StateListDrawable focus=new StateListDrawable();
@@ -134,7 +140,8 @@ final class GlassDashboard {
           set(key,c==null?"Offline":c.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)?"Wi-Fi connected":"Other network",c==null?"No active connection":"Network validation: "+(c.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)?"online":"not validated"));break;
         }
       }
-    }catch(Exception e){set(key,"Unavailable","This device does not expose this reading");}
+      widgets.get(key).setVisibility(View.VISIBLE);
+    }catch(Exception e){widgets.get(key).setVisibility(View.GONE);}
   }
   final class Ring extends Drawable{
     final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);final int color;float fraction;

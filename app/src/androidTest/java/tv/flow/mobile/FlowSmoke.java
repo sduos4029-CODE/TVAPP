@@ -216,7 +216,7 @@ public class FlowSmoke extends Instrumentation {
       check(contains(app.content, "Film discovery"), "Provider discovery absent");
       check(app.player == null, "Sample player created in production mode");
     });
-    test("content tabs never substitute installed apps or fictional samples", () -> {
+    test("content tabs keep app shortcuts distinct from catalogue records and never invent films", () -> {
       for(String page:new String[]{"Movies","Shows","New","Kids"}){
         app.navigate(page);
         check(app.sharedContent.forPage(page).isEmpty(),"Unexpected shared TV feed on phone emulator");
@@ -439,13 +439,20 @@ public class FlowSmoke extends Instrumentation {
     final long[] beforeSleep=new long[1];
     runOnMainSync(() -> {app.youtube.seek(1000);});SystemClock.sleep(200);
     runOnMainSync(() -> beforeSleep[0]=app.localAudio.player.getCurrentPosition());
-    shell("input keyevent KEYCODE_SLEEP");SystemClock.sleep(1300);
+    shell("input keyevent KEYCODE_SLEEP");
+    long sleepDeadline=SystemClock.uptimeMillis()+15000;
+    final boolean[] sleepReady={false};
+    while(SystemClock.uptimeMillis()<sleepDeadline){
+      runOnMainSync(()->sleepReady[0]=!app.displayInteractive() && !app.handler.hasCallbacks(app.ticker));
+      if(sleepReady[0])break;SystemClock.sleep(100);
+    }
+    SystemClock.sleep(1300);
     test("local audio continues while emulator display is off",() -> {
       android.os.PowerManager power=(android.os.PowerManager)app.getSystemService(android.content.Context.POWER_SERVICE);
       check(!power.isInteractive(),"Display did not become noninteractive");
       check(app.localAudio.playing(),"Local audio stopped with display off");
       check(app.localAudio.player.getCurrentPosition()>beforeSleep[0]+700,"Playback position did not advance with display off");
-      check(!app.resumed,"Activity still polls while display off");
+      check(!app.handler.hasCallbacks(app.ticker),"Dashboard polling remains scheduled while display off");
     });
     shell("input keyevent KEYCODE_WAKEUP");shell("wm dismiss-keyguard");SystemClock.sleep(350);
     test("screen wakes and local playback remains controllable",() -> {
@@ -508,14 +515,8 @@ public class FlowSmoke extends Instrumentation {
         getTargetContext().getSharedPreferences("flow",0).edit().putBoolean("catalogueEnabled",true).putBoolean("designDemo",false).putInt("realTabsVersion",4).putBoolean("remote",false).putBoolean("preview",true).commit();
         app=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         waitForIdleSync();
-        screenshot("v4-01-dashboard",()->app.navigate("Dashboard"));
-        screenshot("v4-02-home",()->app.navigate("Home"));
-        screenshot("v4-03-movies",()->app.navigate("Movies"));
-        screenshot("v4-04-shows",()->app.navigate("Shows"));
-        screenshot("v4-05-new",()->app.navigate("New"));
-        screenshot("v4-06-kids",()->app.navigate("Kids"));
-        screenshot("v4-07-sources",()->{app.navigate("Movies");new CatalogueScreen(app,app.design).sources();});
-        out.putString("stream","7 screen captures completed. Visual review, not functional test results.");finish(Activity.RESULT_OK,out);return;
+        FullReleaseChecks.capture(this);
+        out.putString("stream","17 full-app screen captures completed; visual review only, no successful catalogue fixtures.");finish(Activity.RESULT_OK,out);return;
       }
       Intent i =
           new Intent(getTargetContext(), MainActivity.class)
@@ -762,6 +763,7 @@ public class FlowSmoke extends Instrumentation {
           });
       runLive(i);
       CatalogueChecks.run(this);
+      FullReleaseChecks.run(this);
       runOnMainSync(() -> {if(app.localAudio!=null)app.localAudio.stopPlayback();});
       out.putString("stream", report + "\n" + passed + " checks passed\n");
       out.putInt("passed", passed);

@@ -1,5 +1,7 @@
 # Installation block — Flow TV 0.4.2
 
+Current full-app release: **0.5.0**, package `tv.flow.mobile`, versionCode 7, same debug signing certificate. The original warning’s cause and physical-device acceptance remain unverified. [Download APK](releases/Flow-TV-v0.5.0-debug.apk).
+
 The user reported “App blocked to protect your device … This app can request access to sensitive data … identity theft or financial fraud” **while installing** the 0.4.0 APK, on a phone using Prime Video, JioHotstar and Airtel Xstream.
 
 Google’s [current Play Protect help](https://support.google.com/googleplay/answer/2812853?hl=en), retrieved 21 October 2026, says it may prevent installation of an unverified app using sensitive device permissions commonly targeted for financial fraud. This is more specific than an ordinary unknown-source prompt. The text alone does not disclose the exact classifier or prove a particular permission caused this block.
