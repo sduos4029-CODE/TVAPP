@@ -86,11 +86,19 @@
       "http_status": 200,
       "response_bytes": 2360953,
       "sha256": "4a3ba02b4cc776fcd8152b073e8b6db3c2400783e984617fc59e5700b0281faa"
+    },
+    {
+      "title": "Google Play Protect: device protection and installation blocking",
+      "url": "https://support.google.com/googleplay/answer/2812853?hl=en",
+      "http_status": 200,
+      "response_bytes": 1625194,
+      "sha256": "a7753c32fb3515bee91456901931deb671d1b2001d9f5698d970457db41b63bd"
     }
   ],
   "unresolved": [
     "No RMV2004-specific picture-off control verified",
-    "No actual YouTube playback exercised"
+    "No actual YouTube playback exercised",
+    "User phone Play Protect acceptance and exact installation-block classifier are unverified"
   ],
   "other_requests": [
     {

@@ -1315,7 +1315,7 @@ final class FlowDesign {
           {"Microphone", "Not requested • voice unavailable"},
           {"Recommendations", a.demo() ? "Test-only samples" : "OS-shared TV programme cards"},
           {"Full app catalogues", "Private · not exposed by login"},
-          {"Media access", a.youtube.allowed() ? "Enabled in Android settings" : "Optional · not enabled"},
+          {"Notification access", "Not requested · no cross-app media access"},
           {"Background work", "Flow polling stops when inactive"}
         }) {
       Button b = button(row[0] + "\n" + row[1], () -> a.toast(row[0] + ": " + row[1]));
@@ -1343,7 +1343,7 @@ final class FlowDesign {
             () ->
                 a.confirm(
                     "Delete Flow data?",
-                    "Deletes local favourites, lists, audio imports and preferences. Stops local playback. Android notification access is revoked separately in system settings."
+                    "Deletes local favourites, lists, audio imports and preferences. Stops local playback."
                         + " This cannot be undone.",
                     () -> {
                       if(a.localAudio!=null)a.localAudio.stopPlayback();

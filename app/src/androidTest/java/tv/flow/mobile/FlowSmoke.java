@@ -293,10 +293,10 @@ public class FlowSmoke extends Instrumentation {
     });
     test("YouTube controls are honest without media-session access", () -> {
       app.navigate("Audio");
-      check(app.youtube.controller == null, "Unexpected media session on emulator");
+      check(app.youtube.active() == null, "Unexpected external media session");
       check(!app.live.play.isEnabled() && !app.live.seek.isEnabled(), "Fake playback controls enabled");
       check(!app.live.next.isEnabled(), "Fake next control enabled");
-      check(contains(app.content, "ACCESS NOT ENABLED") || contains(app.content, "NO YOUTUBE SESSION"), "Missing truthful connection state");
+      check(contains(app.content, "YOUTUBE: USE OFFICIAL APP"), "Missing truthful official-app state");
       app.live.playbackLimits();
       check(contains(app.drawer, "Video hide: unavailable"), "Hidden-video limit not labelled");
       check(contains(app.drawer, "Premium"), "Screen-off account requirements missing");
@@ -312,10 +312,11 @@ public class FlowSmoke extends Instrumentation {
       app.design.refreshMetrics();
       check(app.metricViews.size() >= 5, "Live metric widgets missing");
     });
-    test("optional media access opens explanation before Android grant", () -> {
+    test("YouTube limits offer official app without a sensitive access prompt", () -> {
       app.navigate("Audio"); app.live.mediaAccess();
-      check(contains(app.drawer, "broader notification access"), "Permission scope not explained");
-      check(find(app.drawer, "Open Android access settings") != null, "System opt-in action missing");
+      check(contains(app.drawer, "Notification access has been removed"), "Removed access not explained");
+      check(find(app.drawer, "Open Android access settings") == null, "Sensitive grant action remains");
+      check(find(app.drawer, "Open YouTube") != null, "Official app action missing");
       app.closeDrawer();
     });
     test("real app launch records local recently-opened item", () -> {
@@ -337,23 +338,23 @@ public class FlowSmoke extends Instrumentation {
       check(app.localAudio!=null,"Local service did not bind");app.live.playLocal(0);
     });
     awaitLocal(0);
-    shell("cmd notification allow_listener tv.flow.mobile/tv.flow.mobile.MediaAccessService");
-    SystemClock.sleep(300);
-    test("granted media access discovers sessions but rejects non-YouTube sources", () -> {
-      check(app.youtube.allowed(),"Android media access grant not observed");
-      app.youtube.start();
-      android.media.session.MediaSessionManager manager=(android.media.session.MediaSessionManager)app.getSystemService(android.content.Context.MEDIA_SESSION_SERVICE);
-      boolean own=false;
-      for(android.media.session.MediaController session:manager.getActiveSessions(app.youtube.component))
-        if(app.getPackageName().equals(session.getPackageName()))own=true;
-      check(own,"No active local session to challenge source filter");
-      check(app.youtube.controller==null,"Local session was misidentified as YouTube");
+    test("installed package exposes no notification listener or sensitive collection permissions", () -> {
+      try {
+        android.content.pm.PackageInfo info=app.getPackageManager().getPackageInfo(app.getPackageName(),android.content.pm.PackageManager.GET_SERVICES | android.content.pm.PackageManager.GET_PERMISSIONS);
+        if(info.services!=null)for(android.content.pm.ServiceInfo service:info.services)
+          check(!"android.permission.BIND_NOTIFICATION_LISTENER_SERVICE".equals(service.permission) && !"android.permission.BIND_ACCESSIBILITY_SERVICE".equals(service.permission),"Sensitive service still exposed");
+        if(info.requestedPermissions!=null)for(String permission:info.requestedPermissions)
+          check(!Arrays.asList("android.permission.READ_SMS","android.permission.RECEIVE_SMS","android.permission.READ_CONTACTS","android.permission.RECORD_AUDIO","android.permission.QUERY_ALL_PACKAGES","android.permission.REQUEST_INSTALL_PACKAGES").contains(permission),"Unexpected sensitive permission: "+permission);
+      }catch(android.content.pm.PackageManager.NameNotFoundException e){throw new AssertionError(e);}
+      check(app.getPackageManager().queryIntentServices(new Intent("android.service.notification.NotificationListenerService").setPackage(app.getPackageName()),0).isEmpty(),"Listener intent remains");
     });
-    shell("cmd notification disallow_listener tv.flow.mobile/tv.flow.mobile.MediaAccessService");
-    SystemClock.sleep(200);
-    test("revoking media access clears listener and YouTube controller", () -> {
-      app.youtube.start();check(!app.youtube.allowed(),"Access not revoked");
-      check(!app.youtube.listening && app.youtube.controller==null,"Stale privileged controller retained");
+    test("local session remains controllable without cross-app media access", () -> {
+      app.youtube.start();
+      check(app.localAudio.controller!=null && app.youtube.active()==app.localAudio.controller,"Own audio control unavailable");
+      app.prefs.edit().putString("audioSource","youtube").apply();
+      check(app.youtube.active()==null,"External session exposed");
+      app.prefs.edit().putString("audioSource","local").apply();
+      check(app.youtube.active()==app.localAudio.controller,"Local session not restored");
     });
     test("local playback exposes actual duration, metadata and supported controls", () -> {
       app.live.updateMedia();

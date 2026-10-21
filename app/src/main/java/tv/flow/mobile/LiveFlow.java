@@ -308,7 +308,7 @@ final class LiveFlow {
     for (Button b : new Button[] {previous, rewind, play, forward, next}) b.setTypeface(FlowDesign.dots);
     deck.addView(controls);
     LinearLayout widgets = a.landscape() ? d.row() : d.col();
-    Button access = d.button(localView?"+ Choose audio files":a.tv()?"TV playback limits":"◉  " + (a.youtube.allowed() ? "Media access settings" : "Connect YouTube controls"), () -> {if(localView)pickAudio();else mediaAccess();});
+    Button access = d.button(localView?"+ Choose audio files":"YouTube playback limits", () -> {if(localView)pickAudio();else mediaAccess();});
     access.setTypeface(FlowDesign.dots); widgets.addView(access);
     widgets.addView(d.button(localView?"Display / Black screen":"Display options · unverified", this::playbackLimits));
     if(localView) { queueButton=d.button("Queue (0)",this::localQueue);widgets.addView(queueButton); }
@@ -330,15 +330,11 @@ final class LiveFlow {
       public void onProgressChanged(SeekBar bar,int value,boolean user){if(user)try{manager.setStreamVolume(AudioManager.STREAM_MUSIC,value,0);}catch(SecurityException e){a.toast("Use device volume buttons");}}
     });
     volume.addView(slider,new LinearLayout.LayoutParams(0,d.u(30),1));deck.addView(volume);
-    d.note(deck, localView ? "Local files play through Flow's media service. Display-off behavior still needs testing on your TV. Bundled tracks are original sample audio." : a.tv()?"YouTube background play is documented for mobile apps only. Use YouTube on TV for video; use Local audio for Flow's listening controls. Picture-off is a separate unverified vendor feature.":"YouTube controls appear only when its official app exposes an active session. Background playback depends on YouTube membership, content and settings. YouTube has its own privacy practices.");
+    d.note(deck, localView ? "Local files play through Flow's media service. Display-off behavior still needs testing on your TV. Bundled tracks are original sample audio." : a.tv()?"YouTube background play is documented for mobile apps only. Use YouTube on TV for video; use Local audio for Flow's listening controls. Picture-off is a separate unverified vendor feature.":"YouTube plays in its official app. Flow does not request notification access or read other apps’ media sessions. Use Local audio for Flow’s dot-matrix controls. YouTube has its own privacy practices.");
     updateMedia();
   }
 
   void openYouTubeApp() {
-    if(a.youtube.controller!=null) {
-      MainActivity.AppEntry active=a.findApp(a.youtube.controller.getPackageName());
-      if(active!=null){a.launchApp(active);return;}
-    }
     for (MainActivity.AppEntry app : a.apps) if (YouTubeMedia.isYouTube(app.pkg)) { a.launchApp(app); return; }
     a.safeStart(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com")));
   }
@@ -364,20 +360,11 @@ final class LiveFlow {
     d.note(p, "There is no fake hide-video or screen-off switch. A black Flow screen would not power off the display.");
   }
   void mediaAccess() {
-    if(a.tv()) {
-      LinearLayout p=d.panel("YouTube on Android TV");
-      d.note(p,"YouTube documents background playback for mobile apps only. Flow does not request notification access to offer unsupported YouTube background controls on TV.");
-      d.note(p,"Open YouTube for normal TV video. Local audio supports Flow's dot-matrix controls. The realme TV's picture-off and wake behavior still require device verification.");
-      p.addView(d.button("Open YouTube",this::openYouTubeApp));return;
-    }
-    LinearLayout p = d.panel("Connect media controls");
-    d.note(p, "Optional Android notification access lets Flow read active media sessions. Android grants broader notification access; this app does not read or store notification contents.");
-    d.note(p, "Flow filters sessions to official YouTube and YouTube Music packages. Titles, artwork, timing and controls come from the session, when available. Access can be revoked in Android settings.");
-    d.note(p,"Opening YouTube alone gives Flow no playback control. A media session does not prove membership eligibility. If YouTube pauses when you leave, use its official player; Flow will not force background playback. YouTube has separate privacy practices.");
-    p.addView(d.mint("Open Android access settings", () -> {
-      Intent i = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
-      a.safeStart(i);
-    }));
+    LinearLayout p=d.panel("YouTube playback limits");
+    d.note(p,"Notification access has been removed from this build. Flow cannot read or control YouTube playback, artwork, timing or queues. No sensitive cross-app access is requested.");
+    d.note(p,"Use the official YouTube app for video and any supported listening modes. Background audio and display-off playback depend on YouTube membership, content, device and settings; Flow cannot enable them.");
+    d.note(p,"Flow’s dot-matrix controls work with local audio. YouTube and other apps have their own privacy practices.");
+    p.addView(d.mint("Open YouTube",this::openYouTubeApp));
   }
   void pickAudio() {
     Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*");
@@ -495,7 +482,7 @@ final class LiveFlow {
     artist.setText(media.text(MediaMetadata.METADATA_KEY_ARTIST, localView?"Choose a file or a bundled sample.":connected ? "Artist/channel not exposed by YouTube" : "Open YouTube to start a real session."));
     PlaybackState state = media.state();
     boolean playing = state != null && state.getState() == PlaybackState.STATE_PLAYING;
-    sessionStatus.setText(localView ? (playing?"NOW PLAYING • LOCAL":state!=null && state.getState()==PlaybackState.STATE_ERROR?"FILE UNAVAILABLE":state!=null && state.getState()==PlaybackState.STATE_BUFFERING?"LOADING LOCAL AUDIO":"LOCAL AUDIO • READY") : a.tv()?"TV: OPEN YOUTUBE FOR VIDEO":!media.allowed() ? "ACCESS NOT ENABLED" : !connected ? "NO YOUTUBE SESSION" : playing ? "NOW PLAYING • YOUTUBE" : "YOUTUBE • NOT PLAYING");
+    sessionStatus.setText(localView ? (playing?"NOW PLAYING • LOCAL":state!=null && state.getState()==PlaybackState.STATE_ERROR?"FILE UNAVAILABLE":state!=null && state.getState()==PlaybackState.STATE_BUFFERING?"LOADING LOCAL AUDIO":"LOCAL AUDIO • READY") : "YOUTUBE: USE OFFICIAL APP");
     if(queueButton!=null && a.localAudio!=null)queueButton.setText("Queue ("+a.localAudio.queue.size()+")");
     Bitmap art = media.artwork();
     if (art != null) {artwork.setImageBitmap(art);artwork.setContentDescription("Source artwork");artworkStatus.setVisibility(View.GONE);}

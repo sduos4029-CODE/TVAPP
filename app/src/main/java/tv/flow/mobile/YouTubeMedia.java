@@ -1,86 +1,24 @@
 package tv.flow.mobile;
 
-import android.app.NotificationManager;
-import android.content.*;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.*;
 import android.os.*;
 import java.util.*;
 
-/** Reads only active official YouTube media sessions after explicit Android notification access. */
+/** Local playback facade. YouTube stays in its official app; no cross-app media access. */
 final class YouTubeMedia {
   final MainActivity a;
-  final ComponentName component;
-  final MediaSessionManager manager;
-  MediaController controller;
-  boolean listening;
-  final MediaController.Callback callback = new MediaController.Callback() {
-    @Override public void onMetadataChanged(MediaMetadata metadata) { changed(); }
-    @Override public void onPlaybackStateChanged(PlaybackState state) { changed(); }
-    @Override public void onSessionDestroyed() { bind(Collections.emptyList()); }
-  };
-  final MediaSessionManager.OnActiveSessionsChangedListener sessions = this::bind;
-
-  YouTubeMedia(MainActivity activity) {
-    a = activity;
-    component = new ComponentName(a, MediaAccessService.class);
-    manager = (MediaSessionManager) a.getSystemService(Context.MEDIA_SESSION_SERVICE);
-  }
-
+  YouTubeMedia(MainActivity activity) { a = activity; }
   static boolean isYouTube(String pkg) {
     return Arrays.asList("com.google.android.youtube", "com.google.android.youtube.tv",
         "com.google.android.youtube.tvmusic", "com.google.android.apps.youtube.music").contains(pkg);
   }
-
-  boolean allowed() {
-    if (Build.VERSION.SDK_INT >= 27)
-      return ((NotificationManager) a.getSystemService(Context.NOTIFICATION_SERVICE))
-          .isNotificationListenerAccessGranted(component);
-    String enabled = android.provider.Settings.Secure.getString(a.getContentResolver(), "enabled_notification_listeners");
-    if (enabled != null) for (String item : enabled.split(":"))
-      if (component.equals(ComponentName.unflattenFromString(item))) return true;
-    return false;
-  }
-
-  void start() {
-    stop();
-    // YouTube's supported-devices help limits background play to mobile apps.
-    // TV picture-off, if a vendor supports it, is a separate in-source device function.
-    if(a.tv()) {changed();return;}
-    if (!allowed() || manager == null) { changed(); return; }
-    try {
-      manager.addOnActiveSessionsChangedListener(sessions, component, a.handler);
-      listening = true;
-      bind(manager.getActiveSessions(component));
-    } catch (SecurityException e) { stop(); changed(); }
-  }
-
-  void stop() {
-    if (listening && manager != null) manager.removeOnActiveSessionsChangedListener(sessions);
-    listening = false;
-    if (controller != null) controller.unregisterCallback(callback);
-    controller = null;
-  }
-
-  void bind(List<MediaController> sessions) {
-    if (controller != null) controller.unregisterCallback(callback);
-    controller = null;
-    if (sessions != null) for (MediaController candidate : sessions) {
-      if (!isYouTube(candidate.getPackageName())) continue;
-      if (controller == null) controller = candidate;
-      PlaybackState state = candidate.getPlaybackState();
-      if (state != null && state.getState() == PlaybackState.STATE_PLAYING) {
-        controller = candidate;
-        break;
-      }
-    }
-    if (controller != null) controller.registerCallback(callback, a.handler);
-    changed();
-  }
+  void start() { changed(); }
+  void stop() {}
 
   void changed() { if (a.live != null) a.live.updateMedia(); }
-  MediaController active() { return a.localMode() ? (a.localAudio==null?null:a.localAudio.controller) : controller; }
+  MediaController active() { return a.localMode() ? (a.localAudio==null?null:a.localAudio.controller) : null; }
   PlaybackState state() { MediaController c=active(); return c == null ? null : c.getPlaybackState(); }
   MediaMetadata metadata() { MediaController c=active(); return c == null ? null : c.getMetadata(); }
   String text(String key, String empty) {

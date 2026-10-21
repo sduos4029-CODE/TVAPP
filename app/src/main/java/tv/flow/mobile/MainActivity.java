@@ -1176,7 +1176,7 @@ public class MainActivity extends Activity {
               + " · API "
               + Build.VERSION.SDK_INT
               + (detailed
-                  ? "\nFlow TV 0.4.0 · "
+                  ? "\nFlow TV 0.4.1 · "
                       + (tv() ? "TV" : "Phone/tablet")
                       + "\nBrand: "
                       + Build.BRAND

@@ -1,4 +1,4 @@
-# YouTube listening feasibility — Flow TV 0.4.0
+# YouTube listening feasibility — Flow TV 0.4.1
 
 ## Official documentation reviewed
 
@@ -20,7 +20,7 @@ Reviewed 21 October 2026 (Asia/Kolkata). The current official pages below were f
 | --- | --- | --- | --- |
 | Normal YouTube video | Official YouTube/YouTube Music player | Official YouTube TV app | Real search/link/app hand-off. Actual YouTube playback was not exercised in this environment. |
 | Official listening mode | Eligible YouTube Premium Android users can use video Settings → On-the-go. Eligible Music users can select Song instead of Video inside YouTube Music. | Mobile background/listening benefits do not establish TV support | Flow offers Open YouTube and guidance; it does not remotely toggle private source modes. |
-| Dot-matrix YouTube controls | Only if the official source actually continues playback and exposes a usable Android media session after user-granted access | YouTube documents background play as mobile-only; Flow disables this integration on TV | Real exposed metadata/actions only. If YouTube pauses when leaving its app, return to its official player. Flow does not force playback or infer membership from a session. |
+| Dot-matrix YouTube controls | Not offered by Flow 0.4.1 | Not offered by Flow 0.4.1 | Notification-listener and external media-session access were removed. Use the official YouTube app. Flow’s dot-matrix controls work with local audio only. |
 | YouTube Hide Video | Hidden embedded/API playback is not a permitted substitute for official audio mode | Same API constraint | Unavailable. No embedded player, extractor or hide-video switch exists. |
 | YouTube screen-off audio | Official source can support eligible membership/content/settings; Flow cannot grant or guarantee it | Background playback is not a documented TV benefit. Vendor Picture Off with YouTube still foreground is a separate hardware capability | Unverified with actual YouTube; not labelled working. No YouTube Black screen workaround. |
 | Local audio dot-matrix screen | Flow-owned media session, real files, queue/search/seek/volume and media notification | Same implementation; physical TV/decoder/remote testing pending | Implemented with original bundled audio and user-selected content URIs. |
@@ -29,11 +29,9 @@ Reviewed 21 October 2026 (Asia/Kolkata). The current official pages below were f
 
 ## Android media access and privacy
 
-Notification access is optional and Android grants broad access. Flow explains this before opening the system grant page. Its NotificationListenerService does not read/store notification contents. It queries active media sessions only while visible, filters to official YouTube/YouTube Music package identifiers, and uses MediaMetadata / PlaybackState. Package filtering is source selection, not cryptographic certification of third-party APKs.
+Version 0.4.1 removes the notification-listener service, its manifest binding, Android notification-access settings entry and all external active-media-session queries. This reduces sensitive access following a reported Play Protect installation block; it does not establish that Google has reviewed or approved the new APK. The previous 0.3/0.4 implementation is historical, not a current capability.
 
-Title/artist or source display subtitle, embedded artwork, duration, state and position come from exposed metadata. Missing values use explicit placeholders; there are no sample YouTube song results. Buttons appear only for supported actions. Seek requires ACTION_SEEK_TO and a usable duration. Position advances from the session's actual position, playback speed and elapsed update time. A source queue is shown only when exposed; search results and saved links are not a playback queue.
-
-Android access does not grant Premium, membership information, YouTube API credentials, queue-write access, audio extraction or display-power control. Opening YouTube alone grants Flow no controller. Android TV gets an explanation/Open YouTube instead of a notification grant prompt for unsupported YouTube background controls. Low-RAM Android Q-and-earlier devices and managed profiles can restrict listener access, as described in Android's reference.
+Flow cannot read or control YouTube metadata, artwork, playback state, seek or queue. Its official-app search/link hand-off remains. Opening YouTube does not grant Flow a controller. Android’s documented media-session APIs do not grant Premium, API credentials, audio extraction or display-power control. No substitute hidden player is used.
 
 The local source uses Flow's own MediaSession and user-started foreground media service. It requests audio focus, responds to focus loss, and uses MediaPlayer's partial CPU wake lock during playback. It does not hold the display awake. A media notification offers Play/Pause and Stop. Local files are selected through the document picker; no microphone or broad storage access is requested. Flow has no ads or tracking SDKs. YouTube and other opened apps have their own account, advertising and privacy practices.
 
@@ -45,4 +43,4 @@ On the actual TV verify the exact firmware, whether supported Picture Off exists
 
 ## Executed versus pending
 
-[VALIDATION.md](VALIDATION.md) records build/signature checks, 40 emulator checks, real local decoding/queue/seek/import, grant/revocation/filtering and local display-off/wake. No official YouTube installation, paid account, physical phone or realme TV was attached. Real YouTube metadata/actions/background audio, source queue/Show video, vendor picture-off and real-TV wake behavior remain unverified. These are not described as successful simulated integrations.
+[VALIDATION.md](VALIDATION.md) records build/signature checks, 40 emulator checks, real local decoding/queue/seek/import, absence of sensitive services/permissions and local-only media control and local display-off/wake. No official YouTube installation, paid account, physical phone or realme TV was attached. YouTube metadata/actions/source queue are unsupported in Flow 0.4.1. Official-app background audio, vendor picture-off and real-TV wake behavior remain unverified. These are not described as successful simulated integrations.

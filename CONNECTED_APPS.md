@@ -23,7 +23,7 @@ Artwork is loaded only from source-published HTTPS/content/resource URIs, with s
 - Android phones generally do not expose this Android TV feed. Signing in to an installed phone app does not populate these tables.
 - Some TV firmware may restrict third-party readers or expose no records. A declared normal permission does not override provider restrictions.
 - No physical realme TV or logged-in streaming app was attached here. Actual readable records, publisher coverage, poster access and title deep links still need device testing.
-- The exact logged-in app names and whether they are on the phone or TV remain unspecified. That information is needed before claiming a provider-specific account integration is possible.
+- The user is testing on a phone with Prime Video, JioHotstar and Airtel Xstream already signed in. Those mobile logins do not expose catalogues to Flow. Flow can launch installed apps using their actual icons; it cannot import these private catalogues. No authorized provider API has been configured.
 - A separate authorized metadata catalogue could supply real titles/posters, but it would not inherit the installed app's login, watch history or entitlement. It has not been substituted for the requested existing-app source.
 
 The Movies/Shows/New/Kids screens therefore show an honest unavailable/empty state when the OS supplies no matching data. App-launch tiles remain in Home/All Apps; they are not passed off as movies, shows or new releases. The public fictional Design Preview switch was removed and its previous preference is cleared on upgrade.

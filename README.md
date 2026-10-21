@@ -1,6 +1,6 @@
-# Flow TV 0.4.0 — rounded widgets and correctly typed app content
+# Flow TV 0.4.1 — rounded widgets and correctly typed app content
 
-[Download APK](releases/Flow-TV-v0.4.0-debug.apk) · [Actual screenshots](releases/screenshots-v0.4) · [Connected-app limits](CONNECTED_APPS.md) · [Validation](VALIDATION.md)
+[Download APK](releases/Flow-TV-v0.4.1-debug.apk) · [Actual screenshots](releases/screenshots-v0.4.1) · [Connected-app limits](CONNECTED_APPS.md) · [Validation](VALIDATION.md)
 
 **Signing in to Netflix, Prime Video or another installed app does not give Flow access to that app's full catalogue or private account data.** This build reads only programme cards that Android TV exposes through its documented shared provider, where permission and firmware allow it. A phone normally has no such feed. Unavailable tabs stay empty with an explanation; there are no replacement app grids, generic trailer searches or invented movies.
 
@@ -29,19 +29,19 @@ Where available on an Android TV, Flow queries the standard Watch Next and Previ
 
 **Connected app content** in Settings explains the detected status. Shared artwork uses only supplied HTTPS/content/resource URIs. Missing or inaccessible artwork is labelled. No cookie extraction, database scraping, accessibility harvesting or account-token reuse is implemented. The app does not force itself to become the phone's home launcher or request privileged cross-app access.
 
-Actual TV feed access remains unverified: this environment has only a phone emulator. Some TV firmware may restrict third-party readers to no records. Specific account integrations need an official provider API/partnership and explicit authorization; the names of the user's apps/device are still needed to assess that route. See [CONNECTED_APPS.md](CONNECTED_APPS.md).
+Actual TV feed access remains unverified: this environment has only a phone emulator. Some TV firmware may restrict third-party readers to no records. Specific account integrations need an official provider API/partnership and explicit authorization; the user is testing on a phone signed into Prime Video, JioHotstar and Airtel Xstream. Those private mobile catalogues are not exposed through the TV provider. See [CONNECTED_APPS.md](CONNECTED_APPS.md).
 
 ## Audio and YouTube
 
 The original Nothing-inspired audio screen uses black/white dot typography and restrained red accents. Local audio has real MediaPlayer decoding, user-selected file imports, metadata/artwork when present, search by song/artist/album, queue, seeking, previous/next, pause/resume and device volume. A user-started foreground media service supports ongoing local playback. Local display-off/wake is tested in an Android 11 emulator. **Black screen · display stays on** is separate and has no widgets; it does not power off a panel/backlight.
 
-YouTube uses its official app/search. Optional Android notification access can expose actual mobile YouTube media-session metadata/actions, when the source supports them. Flow explains the broad access before opening Android settings and does not read/store notification contents. YouTube background playback is documented as mobile-only, so Flow disables that integration on TV. Actual YouTube playback, realme RMV2004 Picture Off and physical TV wake remain unverified. No hidden API player, stream extraction or Premium bypass exists. [Official YouTube feasibility findings](YOUTUBE_FEASIBILITY.md) remain applicable.
+YouTube uses its official app/search only. Version 0.4.1 removes notification-listener access and all cross-app media-session acquisition after a reported Play Protect installation block. Flow cannot display or control YouTube metadata, timing or queues. Local audio retains its own media session and functional dot-matrix controls. Actual YouTube screen-off playback, realme RMV2004 Picture Off and physical TV wake remain unverified. No hidden API player, stream extraction or Premium bypass exists. See [YouTube feasibility](YOUTUBE_FEASIBILITY.md) and [installation warning analysis](INSTALLATION.md).
 
 ## Privacy
 
 No ads, analytics, tracking SDKs or microphone permission in Flow. Favourites, saved titles/links and local-file references stay on the device. Android's TV provider controls what metadata can be read. The app declares READ_EPG_DATA and provider visibility for permitted TV listings; denial is handled as unavailable. INTERNET is used for shared publisher artwork, whose server can observe those requests and has its own privacy practices. Flow does not attach account credentials or cookies. External apps retain their own privacy policies.
 
-Deleting Flow preferences stops local playback, clears its local lists and releases selected document grants. It does not delete original music files, modify other apps' data or revoke Android notification access; revoke that separately in system settings.
+Deleting Flow preferences stops local playback, clears its local lists and releases selected document grants. It does not delete original music files, modify other apps' data.
 
 ## Installation and build
 
@@ -61,6 +61,6 @@ Install main/test APKs in a disposable API 30 emulator, then:
 adb shell am instrument -r -w -e liveCapture true tv.flow.mobile.test/tv.flow.mobile.FlowSmoke
 ```
 
-The test resets local preferences, uses clearly synthetic programme records only to check classification/watchlist behavior, temporarily grants/revokes media access, launches Settings, creates/deletes its own audio fixture and sleeps/wakes the emulator. Do not run it on a personal installation. Test-only sample data is removed before production screenshots. Optional captures are in internal `files/visuals`; collect with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
+The test resets local preferences, uses clearly synthetic programme records only to check classification/watchlist behavior, launches Settings, creates/deletes its own audio fixture and sleeps/wakes the emulator. Do not run it on a personal installation. Test-only sample data is removed before production screenshots. Optional captures are in internal `files/visuals`; collect with `adb exec-out run-as tv.flow.mobile tar -cf - files/visuals`.
 
 Doto is bundled under its SIL Open Font License. Original sample audio is generated by `scripts/generate_audio.py`. No third-party Android runtime libraries or web UI are used.
